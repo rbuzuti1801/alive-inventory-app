@@ -24,19 +24,23 @@ export async function POST(request: Request) {
   if (response) return response;
   if (!canManageUsers(user!)) return errorResponse(new Error("Apenas admin pode gerenciar usuários."), 403);
 
-  const payload = userSchema.parse(await request.json());
-  if (!payload.password) return errorResponse(new Error("Senha obrigatória ao criar usuário."));
+  try {
+    const payload = userSchema.parse(await request.json());
+    if (!payload.password) return errorResponse(new Error("Senha obrigatória ao criar usuário."));
 
-  const password_hash = await bcrypt.hash(payload.password, 12);
-  const { password: _password, ...rest } = payload;
-  const { data, error } = await supabaseAdmin
-    .from("users_internal")
-    .insert({ ...rest, password_hash, active: payload.active ?? true })
-    .select("id,name,username,role,sector_id,active")
-    .single();
+    const password_hash = await bcrypt.hash(payload.password, 12);
+    const { password: _password, ...rest } = payload;
+    const { data, error } = await supabaseAdmin
+      .from("users_internal")
+      .insert({ ...rest, password_hash, active: payload.active ?? true })
+      .select("id,name,username,role,sector_id,active")
+      .single();
 
-  if (error) return errorResponse(error);
-  return Response.json({ user: data }, { status: 201 });
+    if (error) return errorResponse(error);
+    return Response.json({ user: data }, { status: 201 });
+  } catch (error) {
+    return errorResponse(error);
+  }
 }
 
 export async function PUT(request: Request) {
@@ -44,20 +48,24 @@ export async function PUT(request: Request) {
   if (response) return response;
   if (!canManageUsers(user!)) return errorResponse(new Error("Apenas admin pode gerenciar usuários."), 403);
 
-  const body = await request.json();
-  if (!body.id) return errorResponse(new Error("ID obrigatório."));
-  const payload = userSchema.parse(body);
-  const { password, ...rest } = payload;
-  const update: Record<string, unknown> = { ...rest, active: payload.active ?? false };
-  if (password) update.password_hash = await bcrypt.hash(password, 12);
+  try {
+    const body = await request.json();
+    if (!body.id) return errorResponse(new Error("ID obrigatório."));
+    const payload = userSchema.parse(body);
+    const { password, ...rest } = payload;
+    const update: Record<string, unknown> = { ...rest, active: payload.active ?? false };
+    if (password) update.password_hash = await bcrypt.hash(password, 12);
 
-  const { data, error } = await supabaseAdmin
-    .from("users_internal")
-    .update(update)
-    .eq("id", body.id)
-    .select("id,name,username,role,sector_id,active")
-    .single();
+    const { data, error } = await supabaseAdmin
+      .from("users_internal")
+      .update(update)
+      .eq("id", body.id)
+      .select("id,name,username,role,sector_id,active")
+      .single();
 
-  if (error) return errorResponse(error);
-  return Response.json({ user: data });
+    if (error) return errorResponse(error);
+    return Response.json({ user: data });
+  } catch (error) {
+    return errorResponse(error);
+  }
 }
