@@ -6,7 +6,7 @@ import { useState } from "react";
 import { Badge } from "@/components/Badge";
 import { conservationLabels, conservationStatuses, itemStatuses, statusLabels } from "@/lib/constants";
 
-type Sector = { id: string; name: string };
+type Sector      = { id: string; name: string };
 type Subcategory = { id: string; sector_id: string; name: string };
 type Item = {
   id: string;
@@ -26,11 +26,7 @@ type Item = {
 };
 
 export function InventoryTable({
-  items,
-  sectors,
-  subcategories,
-  canCreate,
-  canDelete,
+  items, sectors, subcategories, canCreate, canDelete,
 }: {
   items: Item[];
   sectors: Sector[];
@@ -44,9 +40,7 @@ export function InventoryTable({
 
   function updateFilter(form: HTMLFormElement) {
     const params = new URLSearchParams();
-    new FormData(form).forEach((value, key) => {
-      if (value) params.set(key, String(value));
-    });
+    new FormData(form).forEach((value, key) => { if (value) params.set(key, String(value)); });
     router.push(`/inventory?${params.toString()}`);
   }
 
@@ -60,8 +54,8 @@ export function InventoryTable({
 
   return (
     <>
-      <form className="toolbar" onSubmit={(event) => { event.preventDefault(); updateFilter(event.currentTarget); }}>
-        <div className="field"><label>Busca</label><input name="search" defaultValue={searchParams.get("search") ?? ""} placeholder="SKU, descrição, marca..." /></div>
+      <form className="toolbar" onSubmit={(e) => { e.preventDefault(); updateFilter(e.currentTarget); }}>
+        <div className="field"><label>Busca</label><input name="search" defaultValue={searchParams.get("search") ?? ""} placeholder="SKU, descrição, marca…" style={{ minWidth: 200 }} /></div>
         <div className="field"><label>Setor</label><select name="sector_id" defaultValue={searchParams.get("sector_id") ?? ""}><option value="">Todos</option>{sectors.map((s) => <option key={s.id} value={s.id}>{s.name}</option>)}</select></div>
         <div className="field"><label>Subcategoria</label><select name="subcategory_id" defaultValue={searchParams.get("subcategory_id") ?? ""}><option value="">Todas</option>{subcategories.map((s) => <option key={s.id} value={s.id}>{s.name}</option>)}</select></div>
         <div className="field"><label>Estado</label><select name="conservation_status" defaultValue={searchParams.get("conservation_status") ?? ""}><option value="">Todos</option>{conservationStatuses.map((s) => <option key={s} value={s}>{conservationLabels[s]}</option>)}</select></div>
@@ -69,26 +63,35 @@ export function InventoryTable({
         <div className="field"><label>Responsável</label><input name="responsible_name" defaultValue={searchParams.get("responsible_name") ?? ""} /></div>
         <button className="button" type="submit">Filtrar</button>
         <Link className="button secondary" href="/inventory">Limpar</Link>
-        {canCreate && <Link className="button" href="/inventory/new">Novo item</Link>}
+        {canCreate && <Link className="button gold" href="/inventory/new">+ Novo item</Link>}
       </form>
 
       <div className="table-wrap">
         <table>
           <thead>
             <tr>
-              <th>SKU</th><th>Descrição</th><th>Setor</th><th>Subcategoria</th><th>Marca</th><th>Modelo</th><th>Qtd.</th><th>Estado</th><th>Localização</th><th>Responsável</th><th>Status</th><th>Ações</th>
+              <th>SKU</th>
+              <th>Descrição</th>
+              <th>Setor</th>
+              <th>Subcategoria</th>
+              <th>Marca / Modelo</th>
+              <th>Qtd.</th>
+              <th>Estado</th>
+              <th>Localização</th>
+              <th>Responsável</th>
+              <th>Status</th>
+              <th>Ações</th>
             </tr>
           </thead>
           <tbody>
             {items.map((item) => (
               <tr key={item.id} className={item.conservation_status === "danificado" || item.conservation_status === "em_manutencao" ? "highlight-row" : ""}>
-                <td><strong style={{ fontFamily: "monospace", whiteSpace: "nowrap" }}>{item.sku ?? item.item_code}</strong></td>
-                <td>{item.description}</td>
+                <td><span className="sku-badge">{item.sku ?? item.item_code}</span></td>
+                <td style={{ maxWidth: 220, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{item.description}</td>
                 <td>{item.sectors?.name ?? "-"}</td>
                 <td>{item.subcategories?.name ?? "-"}</td>
-                <td>{item.brand ?? "-"}</td>
-                <td>{item.model ?? "-"}</td>
-                <td>{item.quantity}</td>
+                <td style={{ color: "var(--muted)", fontSize: 13 }}>{[item.brand, item.model].filter(Boolean).join(" / ") || "-"}</td>
+                <td style={{ fontWeight: 600 }}>{item.quantity}</td>
                 <td><Badge kind="conservation" value={item.conservation_status} /></td>
                 <td>{item.location}</td>
                 <td>{item.responsible_name ?? "-"}</td>
@@ -96,11 +99,21 @@ export function InventoryTable({
                 <td className="actions">
                   <Link className="button secondary" href={`/inventory/${item.id}`}>Ver</Link>
                   <Link className="button secondary" href={`/inventory/${item.id}/edit`}>Editar</Link>
-                  {canDelete && <button className="button danger" disabled={deleting === item.id} onClick={() => deleteItem(item.id)} type="button">Excluir</button>}
+                  {canDelete && (
+                    <button className="button danger" disabled={deleting === item.id} onClick={() => deleteItem(item.id)} type="button">
+                      {deleting === item.id ? "…" : "Excluir"}
+                    </button>
+                  )}
                 </td>
               </tr>
             ))}
-            {items.length === 0 && <tr><td colSpan={12}>Nenhum item encontrado.</td></tr>}
+            {items.length === 0 && (
+              <tr>
+                <td colSpan={11} style={{ textAlign: "center", padding: "48px", color: "var(--muted)" }}>
+                  Nenhum item encontrado com os filtros selecionados.
+                </td>
+              </tr>
+            )}
           </tbody>
         </table>
       </div>

@@ -1,8 +1,7 @@
-import Link from "next/link";
-import { Boxes, FileText, LayoutDashboard, MapPinned, Users } from "lucide-react";
 import { requireUser } from "@/lib/auth";
 import { roleLabels } from "@/lib/constants";
 import { LogoutButton } from "@/components/LogoutButton";
+import { SidebarNav } from "@/components/SidebarNav";
 
 export default async function AppLayout({ children }: { children: React.ReactNode }) {
   const user = await requireUser();
@@ -10,20 +9,30 @@ export default async function AppLayout({ children }: { children: React.ReactNod
   return (
     <div className="app-shell">
       <aside className="sidebar">
-        <div className="brand">ALIVE INVENTÁRIO</div>
-        <div style={{ marginBottom: 22 }}>
-          <strong>{user.name}</strong>
-          <div className="muted">{roleLabels[user.role]}</div>
+        {/* Logo */}
+        <div className="sidebar-logo">
+          <div className="sidebar-logo-text">
+            <span className="alive">ALIVE</span>
+            <span className="church">CHURCH</span>
+          </div>
+          <div className="sidebar-logo-sub">INVENTÁRIO</div>
         </div>
-        <nav className="nav">
-          <Link href="/dashboard"><LayoutDashboard size={18} /> Dashboard</Link>
-          <Link href="/inventory"><Boxes size={18} /> Inventário</Link>
-          <Link href="/reports"><FileText size={18} /> Relatórios</Link>
-          {user.role === "admin" && <Link href="/sectors"><MapPinned size={18} /> Setores</Link>}
-          {user.role === "admin" && <Link href="/users"><Users size={18} /> Usuários</Link>}
+
+        {/* User info */}
+        <div className="sidebar-user">
+          <span className="sidebar-user-name">{user.name}</span>
+          <span className="sidebar-user-role">{roleLabels[user.role]}</span>
+        </div>
+
+        {/* Nav items */}
+        <SidebarNav role={user.role} />
+
+        {/* Logout pinned to bottom */}
+        <div className="sidebar-footer">
           <LogoutButton />
-        </nav>
+        </div>
       </aside>
+
       <main className="main">{children}</main>
     </div>
   );

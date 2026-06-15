@@ -14,7 +14,8 @@ export function LogoutButton() {
 
   return (
     <button className="logout-button" onClick={logout} type="button">
-      <LogOut size={18} /> Sair
+      <LogOut size={16} />
+      <span>Sair</span>
     </button>
   );
 }
