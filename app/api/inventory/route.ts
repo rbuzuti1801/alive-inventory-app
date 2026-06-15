@@ -16,7 +16,7 @@ function applyFilters(url: URL) {
     const search = rawSearch.replace(/[().,]/g, " ").trim().slice(0, 100);
     if (search) {
       query = query.or(
-        `item_code.ilike.%${search}%,description.ilike.%${search}%,brand.ilike.%${search}%,model.ilike.%${search}%,location.ilike.%${search}%`,
+        `sku.ilike.%${search}%,item_code.ilike.%${search}%,description.ilike.%${search}%,brand.ilike.%${search}%,model.ilike.%${search}%,location.ilike.%${search}%`,
       );
     }
   }

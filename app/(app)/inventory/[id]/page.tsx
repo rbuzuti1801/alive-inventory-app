@@ -21,8 +21,10 @@ export default async function InventoryDetailPage({ params }: { params: Promise<
 
   if (!item) return <div className="alert error">Item não encontrado.</div>;
 
+  const sku = item.sku ?? item.item_code;
+
   const fields = [
-    ["Código", item.item_code],
+    ["SKU", sku],
     ["Descrição", item.description],
     ["Setor", (item.sectors as { name?: string } | null)?.name],
     ["Subcategoria", (item.subcategories as { name?: string } | null)?.name],
@@ -44,7 +46,7 @@ export default async function InventoryDetailPage({ params }: { params: Promise<
     <>
       <div className="topbar">
         <div>
-          <h1>{item.item_code}</h1>
+          <h1 style={{ fontFamily: "monospace", letterSpacing: "0.04em" }}>{sku}</h1>
           <p className="muted">{item.description}</p>
         </div>
         <div className="actions">
@@ -57,7 +59,9 @@ export default async function InventoryDetailPage({ params }: { params: Promise<
         {fields.map(([label, value]) => (
           <div className="detail-item" key={label}>
             <strong>{label}</strong>
-            <span>{valueText(value)}</span>
+            <span style={label === "SKU" ? { fontFamily: "monospace", fontWeight: 600 } : undefined}>
+              {valueText(value)}
+            </span>
           </div>
         ))}
       </section>

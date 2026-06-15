@@ -16,18 +16,20 @@ const supabase = createClient(url, serviceKey, {
   auth: { persistSession: false, autoRefreshToken: false },
 });
 
-const password_hash = await bcrypt.hash(password, 12);
+(async () => {
+  const password_hash = await bcrypt.hash(password, 12);
 
-const { error } = await supabase.from("users_internal").upsert(
-  {
-    name,
-    username,
-    password_hash,
-    role: "admin",
-    active: true,
-  },
-  { onConflict: "username" },
-);
+  const { error } = await supabase.from("users_internal").upsert(
+    {
+      name,
+      username,
+      password_hash,
+      role: "admin",
+      active: true,
+    },
+    { onConflict: "username" },
+  );
 
-if (error) throw error;
-console.log(`Admin interno pronto: ${username}`);
+  if (error) throw error;
+  console.log(`Admin interno pronto: ${username}`);
+})();

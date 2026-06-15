@@ -5,8 +5,8 @@ import { supabaseAdmin } from "@/lib/supabase";
 export default async function NewInventoryPage() {
   const user = await requireUser();
   const [sectorsResult, subcategoriesResult] = await Promise.all([
-    supabaseAdmin.from("sectors").select("id,name").eq("active", true).order("name"),
-    supabaseAdmin.from("subcategories").select("id,sector_id,name").eq("active", true).order("name"),
+    supabaseAdmin.from("sectors").select("id,name,code").eq("active", true).order("name"),
+    supabaseAdmin.from("subcategories").select("id,sector_id,name,code").eq("active", true).order("name"),
   ]);
   const sectors = sectorsResult.data ?? [];
   const subcategories = subcategoriesResult.data ?? [];

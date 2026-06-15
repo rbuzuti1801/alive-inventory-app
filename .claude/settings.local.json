@@ -8,7 +8,20 @@
       "Bash(vercel --version)",
       "Bash(git init *)",
       "Bash(git add *)",
-      "Bash(git commit *)"
+      "Bash(git commit *)",
+      "Bash(gh repo *)",
+      "Bash(git remote *)",
+      "Bash(git push *)",
+      "Bash(vercel link *)",
+      "Bash(vercel env *)",
+      "Bash(claude mcp *)",
+      "mcp__plugin_supabase_supabase__get_publishable_keys",
+      "mcp__plugin_supabase_supabase__get_project_url",
+      "Bash(node *)",
+      "Bash(vercel --prod)",
+      "mcp__plugin_supabase_supabase__apply_migration",
+      "Bash(NEXT_PUBLIC_SUPABASE_URL=https://eynpsjemheimcrdaliyi.supabase.co SUPABASE_SERVICE_ROLE_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImV5bnBzamVtaGVpbWNyZGFsaXlpIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc4MTUyNTg4MywiZXhwIjoyMDk3MTAxODgzfQ.jWRRAmjnWXyrDwFSV0aXcGbOGZI53OSnz9U2Pb723Wk INITIAL_ADMIN_PASSWORD=AliveAdmin npm run seed:admin)",
+      "mcp__plugin_supabase_supabase__execute_sql"
     ]
   }
 }

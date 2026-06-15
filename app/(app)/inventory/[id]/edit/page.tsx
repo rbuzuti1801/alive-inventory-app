@@ -8,8 +8,8 @@ export default async function EditInventoryPage({ params }: { params: Promise<{ 
   const { id } = await params;
   const [itemResult, sectorsResult, subcategoriesResult] = await Promise.all([
     supabaseAdmin.from("inventory_items").select("*").eq("id", id).single(),
-    supabaseAdmin.from("sectors").select("id,name").eq("active", true).order("name"),
-    supabaseAdmin.from("subcategories").select("id,sector_id,name").eq("active", true).order("name"),
+    supabaseAdmin.from("sectors").select("id,name,code").eq("active", true).order("name"),
+    supabaseAdmin.from("subcategories").select("id,sector_id,name,code").eq("active", true).order("name"),
   ]);
   const item = itemResult.data;
   const sectors = sectorsResult.data ?? [];

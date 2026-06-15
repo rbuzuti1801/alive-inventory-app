@@ -21,7 +21,7 @@ export async function GET(request: Request) {
   if (error) return Response.json({ error: error.message }, { status: 400 });
 
   const headers = [
-    "codigo",
+    "sku",
     "descricao",
     "setor",
     "subcategoria",
@@ -36,7 +36,7 @@ export async function GET(request: Request) {
   ];
 
   const rows = data.map((item) => [
-    item.item_code,
+    (item as Record<string, unknown>).sku ?? item.item_code,
     item.description,
     (item.sectors as { name?: string } | null)?.name,
     (item.subcategories as { name?: string } | null)?.name,

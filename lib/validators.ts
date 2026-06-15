@@ -10,7 +10,6 @@ export const loginSchema = z.object({
 });
 
 export const inventorySchema = z.object({
-  item_code: z.string().trim().min(1, "Código obrigatório.").max(64),
   description: z.string().trim().min(1, "Descrição obrigatória.").max(500),
   sector_id: z.string().uuid("Setor obrigatório."),
   subcategory_id: nullableUuid,

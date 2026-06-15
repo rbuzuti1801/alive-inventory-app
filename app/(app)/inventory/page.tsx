@@ -13,7 +13,8 @@ export default async function InventoryPage({ searchParams }: { searchParams: Pr
     .order("updated_at", { ascending: false });
 
   if (params.search) {
-    query = query.or(`item_code.ilike.%${params.search}%,description.ilike.%${params.search}%,brand.ilike.%${params.search}%,model.ilike.%${params.search}%,location.ilike.%${params.search}%`);
+    const s = params.search.replace(/[().,]/g, " ").trim().slice(0, 100);
+    if (s) query = query.or(`sku.ilike.%${s}%,item_code.ilike.%${s}%,description.ilike.%${s}%,brand.ilike.%${s}%,model.ilike.%${s}%,location.ilike.%${s}%`);
   }
   for (const key of ["sector_id", "subcategory_id", "conservation_status", "status", "responsible_name"] as const) {
     if (params[key]) query = query.eq(key, params[key]);
@@ -21,7 +22,7 @@ export default async function InventoryPage({ searchParams }: { searchParams: Pr
 
   const [itemsResult, sectorsResult, subcategoriesResult] = await Promise.all([
     query,
-    supabaseAdmin.from("sectors").select("id,name").eq("active", true).order("name"),
+    supabaseAdmin.from("sectors").select("id,name").eq("active", true).order("name"),    // code não é necessário na listagem
     supabaseAdmin.from("subcategories").select("id,sector_id,name").eq("active", true).order("name"),
   ]);
   const items = itemsResult.data ?? [];

@@ -10,6 +10,7 @@ type Sector = { id: string; name: string };
 type Subcategory = { id: string; sector_id: string; name: string };
 type Item = {
   id: string;
+  sku: string | null;
   item_code: string;
   description: string;
   brand: string | null;
@@ -60,7 +61,7 @@ export function InventoryTable({
   return (
     <>
       <form className="toolbar" onSubmit={(event) => { event.preventDefault(); updateFilter(event.currentTarget); }}>
-        <div className="field"><label>Busca</label><input name="search" defaultValue={searchParams.get("search") ?? ""} placeholder="Código, descrição, marca..." /></div>
+        <div className="field"><label>Busca</label><input name="search" defaultValue={searchParams.get("search") ?? ""} placeholder="SKU, descrição, marca..." /></div>
         <div className="field"><label>Setor</label><select name="sector_id" defaultValue={searchParams.get("sector_id") ?? ""}><option value="">Todos</option>{sectors.map((s) => <option key={s.id} value={s.id}>{s.name}</option>)}</select></div>
         <div className="field"><label>Subcategoria</label><select name="subcategory_id" defaultValue={searchParams.get("subcategory_id") ?? ""}><option value="">Todas</option>{subcategories.map((s) => <option key={s.id} value={s.id}>{s.name}</option>)}</select></div>
         <div className="field"><label>Estado</label><select name="conservation_status" defaultValue={searchParams.get("conservation_status") ?? ""}><option value="">Todos</option>{conservationStatuses.map((s) => <option key={s} value={s}>{conservationLabels[s]}</option>)}</select></div>
@@ -75,13 +76,13 @@ export function InventoryTable({
         <table>
           <thead>
             <tr>
-              <th>Código</th><th>Descrição</th><th>Setor</th><th>Subcategoria</th><th>Marca</th><th>Modelo</th><th>Qtd.</th><th>Estado</th><th>Localização</th><th>Responsável</th><th>Status</th><th>Ações</th>
+              <th>SKU</th><th>Descrição</th><th>Setor</th><th>Subcategoria</th><th>Marca</th><th>Modelo</th><th>Qtd.</th><th>Estado</th><th>Localização</th><th>Responsável</th><th>Status</th><th>Ações</th>
             </tr>
           </thead>
           <tbody>
             {items.map((item) => (
               <tr key={item.id} className={item.conservation_status === "danificado" || item.conservation_status === "em_manutencao" ? "highlight-row" : ""}>
-                <td><strong>{item.item_code}</strong></td>
+                <td><strong style={{ fontFamily: "monospace", whiteSpace: "nowrap" }}>{item.sku ?? item.item_code}</strong></td>
                 <td>{item.description}</td>
                 <td>{item.sectors?.name ?? "-"}</td>
                 <td>{item.subcategories?.name ?? "-"}</td>
