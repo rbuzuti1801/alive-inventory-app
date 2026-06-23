@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { conservationStatuses, itemStatuses, roles } from "@/lib/constants";
+import { conservationStatuses, itemStatuses, labelTypes, roles, scanContexts } from "@/lib/constants";
 
 const nullableText = z.preprocess((value) => (value === "" ? null : value), z.string().nullable().optional());
 const nullableUuid = z.preprocess((value) => (value === "" ? null : value), z.string().uuid().nullable().optional());
@@ -49,3 +49,32 @@ export const userSchema = z.object({
   sector_id: nullableUuid,
   active: z.boolean().optional(),
 });
+
+// ── QR Code / etiquetas / auditoria ──────────────────────────────────────
+export const scanSchema = z
+  .object({
+    raw: z.string().trim().max(2000).optional(),
+    id: z.string().uuid().optional(),
+    sku: z.string().trim().max(64).optional(),
+    context: z.enum(scanContexts).optional().default("consulta"),
+    audit_id: nullableUuid,
+  })
+  .refine((v) => v.raw || v.id || v.sku, { message: "Informe o conteúdo lido (raw, id ou sku)." });
+
+export const printLabelSchema = z.object({
+  label_type: z.enum(labelTypes),
+  item_ids: z.array(z.string().uuid()).min(1, "Selecione ao menos um item.").max(500),
+});
+
+export const auditSchema = z.object({
+  name: z.string().trim().min(1, "Nome obrigatório.").max(120),
+  sector_id: nullableUuid,
+});
+
+export const auditScanSchema = z
+  .object({
+    raw: z.string().trim().max(2000).optional(),
+    id: z.string().uuid().optional(),
+    sku: z.string().trim().max(64).optional(),
+  })
+  .refine((v) => v.raw || v.id || v.sku, { message: "Informe o conteúdo lido." });

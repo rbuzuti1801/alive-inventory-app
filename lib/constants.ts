@@ -25,3 +25,29 @@ export const roleLabels: Record<Role, string> = {
   responsavel: "Responsável",
   visualizador: "Visualizador",
 };
+
+// ── Etiquetas patrimoniais ───────────────────────────────────────────────
+export const labelTypes = ["compacta", "media", "completa"] as const;
+export type LabelType = (typeof labelTypes)[number];
+
+export const labelLabels: Record<LabelType, string> = {
+  compacta: "Compacta",
+  media: "Média",
+  completa: "Completa",
+};
+
+// Dimensões físicas de cada modelo (mm) usadas na impressão.
+export const labelDimensions: Record<LabelType, { width: number; height: number }> = {
+  compacta: { width: 20, height: 20 },
+  media: { width: 30, height: 30 },
+  completa: { width: 50, height: 30 },
+};
+
+export const labelDescriptions: Record<LabelType, string> = {
+  compacta: "20×20mm — microfones, fontes, adaptadores, ferramentas, controles.",
+  media: "30×30mm — mesas, cadeiras, monitores, áudio, instrumentos.",
+  completa: "50×30mm — computadores, TVs, câmeras, ativos de alto valor.",
+};
+
+export const scanContexts = ["consulta", "inventario", "auditoria"] as const;
+export type ScanContext = (typeof scanContexts)[number];
