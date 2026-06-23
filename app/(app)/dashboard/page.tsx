@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { AlertTriangle, Boxes, Plus, TrendingUp, Wrench } from "lucide-react";
+import { AlertTriangle, Boxes, Package, Plus, QrCode, ScanLine, TrendingUp, Wrench } from "lucide-react";
 import { Badge } from "@/components/Badge";
 import { requireUser } from "@/lib/auth";
 import { supabaseAdmin } from "@/lib/supabase";
@@ -7,7 +7,7 @@ import { supabaseAdmin } from "@/lib/supabase";
 export default async function DashboardPage() {
   await requireUser();
 
-  const [activeRes, latestRes] = await Promise.all([
+  const [activeRes, latestRes, totalRes, noLabelRes, neverScannedRes, scannedRes] = await Promise.all([
     supabaseAdmin
       .from("inventory_items")
       .select("id,quantity,acquisition_value,conservation_status,sectors(name)")
@@ -17,10 +17,23 @@ export default async function DashboardPage() {
       .select("id,sku,item_code,description,conservation_status,status,updated_at")
       .order("updated_at", { ascending: false })
       .limit(8),
+    supabaseAdmin.from("inventory_items").select("id", { count: "exact", head: true }),
+    supabaseAdmin.from("inventory_items").select("id", { count: "exact", head: true }).eq("label_printed", false),
+    supabaseAdmin.from("inventory_items").select("id", { count: "exact", head: true }).is("last_scan_at", null),
+    supabaseAdmin
+      .from("inventory_items")
+      .select("id,sku,item_code,description,last_scan_at")
+      .not("last_scan_at", "is", null)
+      .order("last_scan_at", { ascending: false })
+      .limit(6),
   ]);
 
   const active = activeRes.data ?? [];
   const latest = latestRes.data ?? [];
+  const totalItems = totalRes.count ?? 0;
+  const itemsWithoutLabel = noLabelRes.count ?? 0;
+  const neverScanned = neverScannedRes.count ?? 0;
+  const recentlyScanned = scannedRes.data ?? [];
 
   const totalActiveItems = active.reduce((s, i) => s + Number(i.quantity ?? 0), 0);
   const totalValue       = active.reduce((s, i) => s + Number(i.quantity ?? 0) * Number(i.acquisition_value ?? 0), 0);
@@ -100,6 +113,42 @@ export default async function DashboardPage() {
         </div>
       </div>
 
+      {/* Patrimonial / QR indicators */}
+      <div className="grid cards" style={{ marginBottom: 24 }}>
+        <div className="kpi-card">
+          <div className="kpi-icon" style={{ background: "#EEF1F8" }}><Package size={20} color="#202F56" /></div>
+          <div>
+            <p className="kpi-label">Itens Cadastrados</p>
+            <p className="kpi-value">{totalItems.toLocaleString("pt-BR")}</p>
+            <p className="kpi-sub">total no patrimônio</p>
+          </div>
+        </div>
+        <div className="kpi-card">
+          <div className="kpi-icon" style={{ background: "#FEF9EC" }}><QrCode size={20} color="#FAB72E" /></div>
+          <div>
+            <p className="kpi-label">Sem Etiqueta</p>
+            <p className="kpi-value" style={{ color: itemsWithoutLabel > 0 ? "#9A6700" : "#202F56" }}>{itemsWithoutLabel}</p>
+            <p className="kpi-sub"><Link href="/labels?printed=false">imprimir etiquetas</Link></p>
+          </div>
+        </div>
+        <div className="kpi-card">
+          <div className="kpi-icon" style={{ background: "#F0FDF4" }}><ScanLine size={20} color="#087443" /></div>
+          <div>
+            <p className="kpi-label">Nunca Escaneados</p>
+            <p className="kpi-value" style={{ color: neverScanned > 0 ? "#175CD3" : "#202F56" }}>{neverScanned}</p>
+            <p className="kpi-sub">sem leitura registrada</p>
+          </div>
+        </div>
+        <div className="kpi-card">
+          <div className="kpi-icon" style={{ background: "#FEF9EC" }}><TrendingUp size={20} color="#FAB72E" /></div>
+          <div>
+            <p className="kpi-label">Valor Patrimonial</p>
+            <p className="kpi-value" style={{ fontSize: 18 }}>{totalValue.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}</p>
+            <p className="kpi-sub">patrimônio ativo</p>
+          </div>
+        </div>
+      </div>
+
       {/* Bottom panels */}
       <div className="grid" style={{ gridTemplateColumns: "1fr 1fr" }}>
         {/* Items by sector */}
@@ -142,6 +191,27 @@ export default async function DashboardPage() {
             ))
           )}
         </div>
+      </div>
+
+      {/* Recently scanned */}
+      <div className="panel" style={{ marginTop: 24 }}>
+        <h2>Últimos itens escaneados</h2>
+        {recentlyScanned.length === 0 ? (
+          <div className="empty-state">
+            <ScanLine size={36} color="#302F2F" />
+            <p>Nenhuma leitura de QR Code registrada ainda.</p>
+          </div>
+        ) : (
+          recentlyScanned.map((item) => (
+            <div key={item.id} className="activity-item">
+              <span className="sku-badge">{(item as Record<string, unknown>).sku as string ?? item.item_code}</span>
+              <Link href={`/inventory/${item.id}`}>{item.description}</Link>
+              <span className="muted" style={{ marginLeft: "auto", fontSize: 13 }}>
+                {item.last_scan_at ? new Date(item.last_scan_at as string).toLocaleString("pt-BR") : ""}
+              </span>
+            </div>
+          ))
+        )}
       </div>
     </>
   );

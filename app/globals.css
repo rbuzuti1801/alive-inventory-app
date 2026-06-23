@@ -456,3 +456,86 @@ tbody tr:hover td           { background: rgba(32,47,86,.025); }
   .topbar, .toolbar { display: grid; }
   .cards, .form-grid, .detail-list { grid-template-columns: 1fr; }
 }
+
+/* ════════════════════════════════════════════════════════════════════════
+   Módulo QR / Etiquetas / Leitura / Auditoria
+   ════════════════════════════════════════════════════════════════════════ */
+
+/* ── Item detail: QR panel ─────────────────────────────────── */
+.detail-grid { display: grid; grid-template-columns: 1fr 280px; gap: 20px; align-items: start; }
+.qr-panel { display: flex; flex-direction: column; align-items: center; gap: 12px; text-align: center; }
+.qr-frame { padding: 12px; background: #fff; border: 1px solid var(--line); border-radius: var(--radius); }
+
+/* ── Modal ─────────────────────────────────────────────────── */
+.modal-overlay { position: fixed; inset: 0; background: rgba(15,22,40,.55); display: grid; place-items: center; z-index: 50; padding: 20px; }
+.modal { width: min(480px, 100%); background: var(--panel); border-radius: 14px; padding: 22px; box-shadow: var(--shadow); }
+.modal-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+.icon-button { background: none; border: none; cursor: pointer; color: var(--muted); padding: 4px; border-radius: 6px; }
+.icon-button:hover { background: var(--bg); color: var(--text); }
+
+.label-options { display: flex; flex-direction: column; gap: 10px; }
+.label-option { display: flex; gap: 10px; align-items: flex-start; padding: 12px; border: 1.5px solid var(--line); border-radius: 10px; cursor: pointer; transition: border-color .15s, background .15s; }
+.label-option:hover { border-color: var(--brand-gold); }
+.label-option.selected { border-color: var(--brand); background: #F7F9FF; }
+.label-option input { margin-top: 3px; }
+.label-option strong { display: block; }
+.label-option .muted { font-size: 13px; }
+
+/* ── Scanner ───────────────────────────────────────────────── */
+.scanner-row { display: flex; gap: 10px; flex-wrap: wrap; }
+.scanner-field { position: relative; flex: 1; min-width: 220px; display: flex; align-items: center; }
+.scanner-field-icon { position: absolute; left: 12px; color: var(--muted); }
+.scanner-field input { width: 100%; padding: 12px 12px 12px 38px; border: 1.5px solid var(--line); border-radius: 10px; font-size: 15px; }
+.scanner-field input:focus { outline: none; border-color: var(--brand); }
+.scanner-camera { margin-top: 14px; max-width: 360px; border-radius: 12px; overflow: hidden; border: 1px solid var(--line); }
+.scanner-camera video { width: 100% !important; height: auto !important; display: block; }
+
+.scan-layout { display: grid; grid-template-columns: 1.3fr 1fr; gap: 20px; align-items: start; }
+.scan-result { margin-top: 18px; padding: 16px; border-radius: 12px; border: 1px solid var(--line); }
+.scan-result.ok { background: #F0FDF4; border-color: #BBF7D0; }
+.scan-result.fail { background: #FEF2F2; border-color: #FECACA; }
+.scan-result-head { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.scan-result-meta { display: flex; gap: 18px; flex-wrap: wrap; color: var(--muted); font-size: 14px; margin-top: 4px; }
+.scan-result-meta span { display: inline-flex; align-items: center; gap: 5px; }
+
+.scan-history { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+.scan-history li { display: flex; gap: 10px; align-items: center; padding: 8px 0; border-bottom: 1px solid var(--line); font-size: 14px; }
+.scan-history li.fail { opacity: .7; }
+.scan-history-time { color: var(--muted); font-size: 12px; min-width: 64px; }
+
+/* ── Bulk bar (etiquetas) ──────────────────────────────────── */
+.bulk-bar { display: flex; gap: 12px; align-items: flex-end; flex-wrap: wrap; padding: 14px 16px; background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius); margin-bottom: 16px; box-shadow: var(--shadow-sm); }
+.bulk-info { font-size: 14px; color: var(--muted); padding-bottom: 8px; }
+tr.row-selected { background: #F7F9FF; }
+
+/* ── Auditoria ─────────────────────────────────────────────── */
+.audit-layout { display: grid; grid-template-columns: 360px 1fr; gap: 20px; align-items: start; }
+.audit-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+.audit-list-item { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 12px; border: 1px solid var(--line); border-radius: 10px; }
+.audit-list-item:hover { border-color: var(--brand-gold); }
+.audit-list-item strong { display: block; }
+.audit-list-item .muted { font-size: 12px; }
+.audit-list-meta { display: flex; flex-direction: column; align-items: flex-end; gap: 4px; }
+.audit-progress-bar { height: 10px; background: var(--line); border-radius: 999px; overflow: hidden; margin: 4px 0 0; }
+.audit-progress-fill { height: 100%; background: var(--success); transition: width .3s; }
+.audit-items { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; max-height: 420px; overflow: auto; font-size: 14px; }
+.audit-items li { padding: 7px 0; border-bottom: 1px solid var(--line); }
+
+/* ── Folha de impressão de etiquetas ───────────────────────── */
+.label-print-root { padding: 16px; background: #f4f4f5; min-height: 100vh; }
+.label-print-toolbar { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; max-width: 900px; margin: 0 auto 16px; padding: 12px 16px; background: #fff; border-radius: 10px; box-shadow: var(--shadow-sm); }
+.label-sheet { display: flex; flex-wrap: wrap; gap: 3mm; max-width: 900px; margin: 0 auto; padding: 8mm; background: #fff; border-radius: 8px; }
+
+@media (max-width: 900px) {
+  .scan-layout, .audit-layout, .detail-grid { grid-template-columns: 1fr; }
+}
+
+/* ── Impressão ─────────────────────────────────────────────── */
+@media print {
+  .no-print { display: none !important; }
+  .sidebar, .topbar .actions { display: none !important; }
+  body { background: #fff; }
+  .label-print-root { padding: 0; background: #fff; }
+  .label-sheet { box-shadow: none; gap: 2mm; padding: 0; max-width: none; }
+  @page { margin: 8mm; }
+}
