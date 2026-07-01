@@ -1,6 +1,12 @@
 import { NextResponse, type NextRequest } from "next/server";
 
-const publicPaths = ["/login", "/api/auth/login"];
+// "/p" é a página pública consultiva dos QR Codes (identificação por public_code).
+const publicPaths = ["/login", "/api/auth/login", "/p"];
+
+// Só aceita retornos relativos internos (evita open redirect via ?next=).
+function safeNext(next: string | null) {
+  return next && next.startsWith("/") && !next.startsWith("//") ? next : null;
+}
 
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
@@ -12,7 +18,8 @@ export function middleware(request: NextRequest) {
   }
 
   if (pathname === "/login" && hasSession) {
-    return NextResponse.redirect(new URL("/dashboard", request.url));
+    const next = safeNext(request.nextUrl.searchParams.get("next"));
+    return NextResponse.redirect(new URL(next ?? "/dashboard", request.url));
   }
 
   return NextResponse.next();

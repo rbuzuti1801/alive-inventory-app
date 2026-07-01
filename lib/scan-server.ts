@@ -1,5 +1,5 @@
 import { supabaseAdmin } from "@/lib/supabase";
-import { parseScan } from "@/lib/qr";
+import { parseScan, parseScanTarget, type ScanTarget } from "@/lib/qr";
 
 const ITEM_SELECT =
   "*,sectors(name),subcategories(name)";
@@ -39,4 +39,35 @@ export async function resolveScannedItem(input: { raw?: string; id?: string; sku
   }
 
   return null;
+}
+
+/** Resolve um produto de estoque a partir do public_code (prefixo E-). */
+export async function resolveStockProductByCode(code: string) {
+  const { data } = await supabaseAdmin
+    .from("stock_products")
+    .select("id,public_code,name,unit,active")
+    .eq("public_code", code)
+    .maybeSingle();
+  return data;
+}
+
+/**
+ * Resolução genérica de leitura: identifica o módulo pelo conteúdo lido e
+ * devolve o alvo tipado. Extensível a novos módulos sem tocar nos existentes.
+ */
+export async function resolveScanTarget(raw: string): Promise<
+  | { kind: "stock_product"; product: NonNullable<Awaited<ReturnType<typeof resolveStockProductByCode>>> }
+  | { kind: "inventory_item"; item: NonNullable<Awaited<ReturnType<typeof resolveScannedItem>>> }
+  | null
+> {
+  const target: ScanTarget | null = parseScanTarget(raw);
+  if (!target) return null;
+
+  if (target.kind === "stock_product") {
+    const product = await resolveStockProductByCode(target.code);
+    return product ? { kind: "stock_product", product } : null;
+  }
+
+  const item = await resolveScannedItem({ id: target.id, sku: target.sku });
+  return item ? { kind: "inventory_item", item } : null;
 }

@@ -59,3 +59,48 @@ export function skuTail(sku: string, n = 5): string {
   const digits = sku.replace(/\D/g, "");
   return digits.slice(-n) || sku.slice(-n);
 }
+
+// ── Resolução genérica de códigos públicos ────────────────────────────────
+// Códigos públicos estáveis viajam no QR como URL (/p/{code}) e o PREFIXO
+// identifica o módulo dono do código — extensível sem acoplar módulos:
+//   E- → produto de estoque (implementado)
+//   B- → bem patrimonial   (reservado)
+//   L- → localização       (reservado)
+
+export type ScanTarget =
+  | { kind: "stock_product"; code: string }
+  | { kind: "inventory_item"; id?: string; sku?: string };
+
+const publicCodeRe = /^[A-Za-z]-[0-9a-f]{6,32}$/i;
+
+/** Normaliza um public_code para o formato persistido (prefixo maiúsculo + hex minúsculo). */
+export function normalizePublicCode(code: string): string {
+  return `${code.slice(0, 1).toUpperCase()}-${code.slice(2).toLowerCase()}`;
+}
+
+/** URL pública gravada no QR Code (câmera nativa do celular abre direto). */
+export function publicUrl(code: string): string {
+  const base = (process.env.NEXT_PUBLIC_APP_URL ?? "").replace(/\/+$/, "");
+  return `${base}/p/${code}`;
+}
+
+/**
+ * Interpreta qualquer leitura de QR e identifica o módulo de destino.
+ * Aceita a URL pública (/p/{code}), um public_code cru ou, como fallback,
+ * o conteúdo patrimonial legado (JSON {id,sku}, UUID ou SKU) via parseScan.
+ */
+export function parseScanTarget(raw: string): ScanTarget | null {
+  const text = raw.trim();
+  if (!text) return null;
+
+  const urlMatch = text.match(/\/p\/([A-Za-z]-[0-9a-f]{6,32})(?:[/?#]|$)/i);
+  const code = urlMatch?.[1] ?? (publicCodeRe.test(text) ? text : null);
+  if (code) {
+    const normalized = normalizePublicCode(code);
+    if (normalized.startsWith("E-")) return { kind: "stock_product", code: normalized };
+    return null; // prefixo reservado: ainda não há módulo que o resolva
+  }
+
+  const parsed = parseScan(text);
+  return parsed ? { kind: "inventory_item", ...parsed } : null;
+}

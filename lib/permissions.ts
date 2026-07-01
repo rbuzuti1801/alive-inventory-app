@@ -19,3 +19,19 @@ export function canEditInventory(user: SessionUser, sectorId: string | null) {
 export function canDeleteInventory(user: SessionUser) {
   return user.role === "admin";
 }
+
+// ── Estoque de consumíveis ────────────────────────────────────────────────
+// Entrada/saída/transferência: qualquer usuário ativo (voluntários incluídos).
+export function canMoveStock(user: SessionUser) {
+  return Boolean(user);
+}
+
+// Ajuste de contagem corrige o saldo — restrito a quem gerencia.
+export function canAdjustStock(user: SessionUser) {
+  return user.role === "admin" || user.role === "responsavel";
+}
+
+// Catálogo de produtos e localizações físicas.
+export function canManageStock(user: SessionUser) {
+  return user.role === "admin";
+}
