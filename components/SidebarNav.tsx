@@ -2,11 +2,12 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Boxes, ChevronRight, ClipboardList, FileText, LayoutDashboard, MapPinned, QrCode, ScanLine, Users } from "lucide-react";
+import { Boxes, ChevronRight, ClipboardList, FileText, LayoutDashboard, MapPinned, Package, QrCode, ScanLine, Users } from "lucide-react";
 
 const navItems = [
   { href: "/dashboard", label: "Dashboard",  icon: LayoutDashboard },
   { href: "/inventory", label: "Inventário", icon: Boxes },
+  { href: "/stock",     label: "Estoque",    icon: Package },
   { href: "/scan",      label: "Leitura QR", icon: ScanLine },
   { href: "/labels",    label: "Etiquetas",  icon: QrCode },
   { href: "/audit",     label: "Inventário rápido", icon: ClipboardList },
