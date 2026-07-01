@@ -137,15 +137,14 @@ before update on public.inventory_audits
 for each row execute function public.touch_updated_at();
 
 -- ── 7. Segurança (deny-by-default; o app acessa via service role) ────────────
+-- (RLS/revoke de sku_sequences vive em 0001c, onde a tabela é criada.)
 alter table public.inventory_audits enable row level security;
 alter table public.audit_items      enable row level security;
 alter table public.inventory_scans  enable row level security;
-alter table public.sku_sequences    enable row level security;
 
 revoke all on public.inventory_audits from anon, authenticated;
 revoke all on public.audit_items      from anon, authenticated;
 revoke all on public.inventory_scans  from anon, authenticated;
-revoke all on public.sku_sequences    from anon, authenticated;
 
 -- ── 8. Backfill dos itens já cadastrados ─────────────────────────────────────
 update public.inventory_items
