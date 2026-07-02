@@ -2,6 +2,7 @@
 
 import { useCallback, useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { CheckCircle2, MapPin, Package, XCircle } from "lucide-react";
 import { ScannerInput } from "@/components/ScannerInput";
 import { Badge } from "@/components/Badge";
@@ -21,6 +22,7 @@ type ScannedItem = {
 type Result = { ok: boolean; item?: ScannedItem; message: string; at: string };
 
 export function QuickScan() {
+  const router = useRouter();
   const [current, setCurrent] = useState<Result | null>(null);
   const [history, setHistory] = useState<Result[]>([]);
   const [busy, setBusy] = useState(false);
@@ -34,6 +36,13 @@ export function QuickScan() {
         body: JSON.stringify({ raw, context: "consulta" }),
       });
       const json = await res.json();
+
+      // QR de produto de estoque: vai direto para a página do produto.
+      if (res.ok && json.stock_product?.public_code) {
+        router.push(`/p/${json.stock_product.public_code}`);
+        return;
+      }
+
       const time = new Date().toLocaleTimeString("pt-BR");
       const result: Result = res.ok
         ? { ok: true, item: json.item, message: "Item localizado", at: time }
@@ -43,7 +52,7 @@ export function QuickScan() {
     } finally {
       setBusy(false);
     }
-  }, []);
+  }, [router]);
 
   return (
     <div className="scan-layout">

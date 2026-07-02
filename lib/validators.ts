@@ -1,5 +1,14 @@
 import { z } from "zod";
-import { conservationStatuses, itemStatuses, labelTypes, roles, scanContexts } from "@/lib/constants";
+import {
+  conservationStatuses,
+  itemStatuses,
+  labelTypes,
+  roles,
+  scanContexts,
+  stockCategories,
+  stockMovementTypes,
+  stockUnits,
+} from "@/lib/constants";
 
 const nullableText = z.preprocess((value) => (value === "" ? null : value), z.string().nullable().optional());
 const nullableUuid = z.preprocess((value) => (value === "" ? null : value), z.string().uuid().nullable().optional());
@@ -78,3 +87,53 @@ export const auditScanSchema = z
     sku: z.string().trim().max(64).optional(),
   })
   .refine((v) => v.raw || v.id || v.sku, { message: "Informe o conteúdo lido." });
+
+// ── Estoque de consumíveis ────────────────────────────────────────────────
+export const stockProductSchema = z.object({
+  name: z.string().trim().min(1, "Nome obrigatório.").max(150),
+  category: z.enum(stockCategories),
+  unit: z.enum(stockUnits),
+  min_quantity: z.coerce.number().min(0, "Mínimo não pode ser negativo.").max(999999),
+  barcode: nullableText,
+  notes: nullableText,
+  active: z.boolean().optional(),
+});
+
+export const stockLocationSchema = z.object({
+  name: z.string().trim().min(1, "Nome obrigatório.").max(120),
+  description: nullableText,
+  sector_id: nullableUuid,
+  active: z.boolean().optional(),
+});
+
+export const stockMovementSchema = z
+  .object({
+    product_id: z.string().uuid("Produto obrigatório."),
+    movement_type: z.enum(stockMovementTypes),
+    quantity: z.coerce.number().min(0).max(99999999),
+    from_location_id: nullableUuid,
+    to_location_id: nullableUuid,
+    reason: nullableText,
+  })
+  .superRefine((v, ctx) => {
+    if (v.movement_type !== "ajuste" && v.quantity <= 0) {
+      ctx.addIssue({ code: z.ZodIssueCode.custom, message: "Quantidade deve ser maior que zero." });
+    }
+    if ((v.movement_type === "entrada" || v.movement_type === "ajuste") && !v.to_location_id) {
+      ctx.addIssue({ code: z.ZodIssueCode.custom, message: "Informe a localização." });
+    }
+    if (v.movement_type === "saida" && !v.from_location_id) {
+      ctx.addIssue({ code: z.ZodIssueCode.custom, message: "Informe a localização de origem." });
+    }
+    if (v.movement_type === "transferencia") {
+      if (!v.from_location_id || !v.to_location_id) {
+        ctx.addIssue({ code: z.ZodIssueCode.custom, message: "Informe origem e destino." });
+      } else if (v.from_location_id === v.to_location_id) {
+        ctx.addIssue({ code: z.ZodIssueCode.custom, message: "Origem e destino devem ser diferentes." });
+      }
+    }
+  });
+
+export const printStockLabelSchema = z.object({
+  product_ids: z.array(z.string().uuid()).min(1, "Selecione ao menos um produto.").max(500),
+});

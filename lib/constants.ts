@@ -51,3 +51,68 @@ export const labelDescriptions: Record<LabelType, string> = {
 
 export const scanContexts = ["consulta", "inventario", "auditoria"] as const;
 export type ScanContext = (typeof scanContexts)[number];
+
+// ── Estoque de consumíveis ───────────────────────────────────────────────
+export const stockMovementTypes = ["entrada", "saida", "ajuste", "transferencia"] as const;
+export type StockMovementType = (typeof stockMovementTypes)[number];
+
+export const stockMovementLabels: Record<StockMovementType, string> = {
+  entrada: "Entrada",
+  saida: "Saída",
+  ajuste: "Ajuste",
+  transferencia: "Transferência",
+};
+
+export const stockUnits = ["un", "cx", "pct", "fardo", "rolo", "lt", "kg", "gl", "par"] as const;
+export type StockUnit = (typeof stockUnits)[number];
+
+export const stockUnitLabels: Record<StockUnit, string> = {
+  un: "Unidade",
+  cx: "Caixa",
+  pct: "Pacote",
+  fardo: "Fardo",
+  rolo: "Rolo",
+  lt: "Litro",
+  kg: "Quilo",
+  gl: "Galão",
+  par: "Par",
+};
+
+export const stockCategories = [
+  "alimentos_bebidas",
+  "descartaveis",
+  "limpeza",
+  "higiene",
+  "escritorio",
+  "kids",
+  "manutencao",
+  "outros",
+] as const;
+export type StockCategory = (typeof stockCategories)[number];
+
+export const stockCategoryLabels: Record<StockCategory, string> = {
+  alimentos_bebidas: "Alimentos e bebidas",
+  descartaveis: "Descartáveis",
+  limpeza: "Limpeza",
+  higiene: "Higiene",
+  escritorio: "Escritório",
+  kids: "Kids",
+  manutencao: "Manutenção",
+  outros: "Outros",
+};
+
+// Status visual do saldo total vs. estoque mínimo.
+export type StockStatus = "normal" | "atencao" | "baixo";
+
+export function stockStatus(total: number, min: number): StockStatus {
+  if (min <= 0) return "normal";
+  if (total <= min) return "baixo";
+  if (total <= min * 1.5) return "atencao";
+  return "normal";
+}
+
+export const stockStatusLabels: Record<StockStatus, string> = {
+  normal: "Normal",
+  atencao: "Atenção",
+  baixo: "Baixo",
+};

@@ -539,3 +539,86 @@ tr.row-selected { background: #F7F9FF; }
   .label-sheet { box-shadow: none; gap: 2mm; padding: 0; max-width: none; }
   @page { margin: 8mm; }
 }
+
+/* ── Estoque: página pública do produto (/p/{code}) ─────────── */
+.public-page {
+  min-height: 100vh;
+  display: flex; align-items: flex-start; justify-content: center;
+  padding: 24px 16px;
+  background: var(--bg, #FAF9F2);
+}
+.public-card {
+  width: 100%; max-width: 420px;
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  box-shadow: var(--shadow);
+  padding: 24px 20px;
+  display: flex; flex-direction: column; gap: 14px;
+}
+.public-brand { font-size: 13px; letter-spacing: .12em; font-weight: 800; }
+.public-brand .system { display: block; font-size: 9px; font-weight: 600; letter-spacing: .25em; text-transform: uppercase; color: var(--muted); margin-top: 2px; }
+.public-product-name { font-size: 22px; font-weight: 800; margin: 0; line-height: 1.2; }
+.public-balance { display: flex; align-items: baseline; gap: 8px; padding: 14px 16px; background: #F7F6EC; border-radius: 12px; }
+.public-balance-value { font-size: 34px; font-weight: 800; color: var(--brand); line-height: 1; }
+.public-balance-unit { font-size: 13px; color: var(--muted); font-weight: 600; }
+.public-locations { display: flex; flex-direction: column; gap: 6px; }
+.public-loc-row { display: flex; justify-content: space-between; align-items: center; padding: 10px 14px; border: 1px solid var(--line); border-radius: 10px; font-size: 14px; }
+.public-login-cta { width: 100%; text-align: center; padding: 14px; font-size: 15px; }
+
+.badge.stock-status-normal  { background: #EDFAF3; color: var(--success); border-color: #C3E6D4; gap: 4px; align-self: flex-start; }
+.badge.stock-status-atencao { background: #FFFAEB; color: var(--warning); border-color: #FDE9A2; gap: 4px; align-self: flex-start; }
+.badge.stock-status-baixo   { background: #FEF2F2; color: var(--danger); border-color: #FECACA; gap: 4px; align-self: flex-start; }
+
+/* ── Estoque: ações e bottom-sheet ─────────────────────────── */
+.stock-actions { display: flex; flex-direction: column; gap: 12px; }
+.stock-actions-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+.stock-action-btn {
+  display: flex; flex-direction: column; align-items: center; gap: 6px;
+  padding: 16px 8px;
+  border: 1px solid var(--line); border-radius: 12px;
+  background: #fff; color: var(--brand);
+  font-size: 14px; font-weight: 700; cursor: pointer;
+}
+.stock-action-btn:hover { border-color: var(--brand-gold); background: #FCFBF3; }
+.stock-history-link { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; color: var(--muted); text-decoration: none; }
+.stock-history-link:hover { color: var(--brand); }
+.stock-success { display: flex; align-items: center; gap: 8px; }
+
+.stock-sheet {
+  position: fixed; left: 0; right: 0; bottom: 0;
+  background: #fff;
+  border-radius: 16px 16px 0 0;
+  padding: 20px 20px calc(20px + env(safe-area-inset-bottom));
+  max-width: 480px; margin: 0 auto;
+  box-shadow: 0 -8px 32px rgba(32,47,86,.18);
+  display: flex; flex-direction: column; gap: 12px;
+}
+.stock-stepper { display: grid; grid-template-columns: 56px 1fr 56px; gap: 8px; }
+.stock-stepper input { text-align: center; font-size: 22px; font-weight: 800; }
+.stock-step-btn {
+  display: flex; align-items: center; justify-content: center;
+  border: 1px solid var(--line); border-radius: 10px;
+  background: #F7F6EC; color: var(--brand); cursor: pointer;
+  min-height: 48px;
+}
+.stock-presets { display: flex; gap: 8px; margin-top: 8px; }
+.stock-preset-btn {
+  flex: 1; padding: 8px; border: 1px solid var(--line); border-radius: 8px;
+  background: #fff; font-weight: 700; cursor: pointer; color: var(--text);
+}
+.stock-preset-btn:hover { border-color: var(--brand-gold); }
+.stock-confirm { width: 100%; padding: 14px; font-size: 15px; }
+
+/* ── Estoque: abas do hub ──────────────────────────────────── */
+.stock-tabs { display: flex; gap: 6px; border-bottom: 1px solid var(--line); padding-bottom: 0; flex-wrap: wrap; }
+.stock-tab {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 10px 16px;
+  font-size: 13.5px; font-weight: 600;
+  color: var(--muted); text-decoration: none;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -1px;
+}
+.stock-tab:hover { color: var(--brand); }
+.stock-tab-active { color: var(--brand); border-bottom-color: var(--brand-gold); }
