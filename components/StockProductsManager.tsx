@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Printer, QrCode } from "lucide-react";
+import { Eye, Pencil, Power, Printer, QrCode, Trash2 } from "lucide-react";
 import {
   stockCategories,
   stockCategoryLabels,
@@ -50,8 +50,18 @@ export function StockProductsManager({ products, canManage, search, category }: 
       headers: { "content-type": "application/json" },
       body: payload ? JSON.stringify(payload) : undefined,
     });
-    const json = await res.json();
+    const json = await res.json().catch(() => ({}));
     if (!res.ok) setError(json.error ?? "Erro ao salvar.");
+    router.refresh();
+  }
+
+  async function remove(id: string, name: string) {
+    if (!window.confirm(`Excluir "${name}" definitivamente? Esta ação não pode ser desfeita.`)) return;
+    setError("");
+    const res = await fetch(`/api/stock/products/${id}`, { method: "DELETE" });
+    const json = await res.json().catch(() => ({}));
+    // Produto com histórico: back-end recusa e sugere desativar.
+    if (!res.ok) setError(json.error ?? "Não foi possível excluir o produto.");
     router.refresh();
   }
 
@@ -142,12 +152,12 @@ export function StockProductsManager({ products, canManage, search, category }: 
               <th>Mínimo</th>
               <th>Status</th>
               <th>Etiqueta</th>
-              {canManage && <th>Ações</th>}
+              <th>Ações</th>
             </tr>
           </thead>
           <tbody>
             {products.length === 0 && (
-              <tr><td colSpan={canManage ? 8 : 7} className="muted">Nenhum produto cadastrado.</td></tr>
+              <tr><td colSpan={8} className="muted">Nenhum produto cadastrado.</td></tr>
             )}
             {products.map((p) => {
               const status = stockStatus(p.total, Number(p.min_quantity));
@@ -158,7 +168,7 @@ export function StockProductsManager({ products, canManage, search, category }: 
                     <input type="checkbox" checked={selected.has(p.id)} onChange={() => toggle(p.id)} aria-label={`Selecionar ${p.name}`} />
                   </td>
                   <td>
-                    <Link href={`/p/${p.public_code}`}>
+                    <Link href={`/stock/${p.id}`}>
                       <strong>{p.name}</strong>
                     </Link>
                     <div className="muted" style={{ fontSize: 11 }}>
@@ -170,25 +180,34 @@ export function StockProductsManager({ products, canManage, search, category }: 
                   <td>{Number(p.min_quantity).toLocaleString("pt-BR")}</td>
                   <td><span className={`badge stock-status-${status}`}>{stockStatusLabels[status]}</span></td>
                   <td>{p.label_printed ? "Impressa" : "—"}</td>
-                  {canManage && (
-                    <td className="actions">
-                      <button
-                        className="button secondary"
-                        type="button"
-                        onClick={() =>
-                          save(`/api/stock/products/${p.id}`, "PUT", {
-                            name: p.name,
-                            category: p.category,
-                            unit: p.unit,
-                            min_quantity: p.min_quantity,
-                            active: !p.active,
-                          })
-                        }
-                      >
-                        {p.active ? "Desativar" : "Ativar"}
-                      </button>
-                    </td>
-                  )}
+                  <td className="actions stock-row-actions">
+                    <Link className="button secondary" href={`/stock/${p.id}`} title="Ver">
+                      <Eye size={15} /> Ver
+                    </Link>
+                    {canManage && (
+                      <>
+                        <Link className="button secondary" href={`/stock/${p.id}/edit`} title="Editar">
+                          <Pencil size={15} /> Editar
+                        </Link>
+                        <button
+                          className="button secondary"
+                          type="button"
+                          title={p.active ? "Desativar" : "Ativar"}
+                          onClick={() => save(`/api/stock/products/${p.id}`, "PATCH", { active: !p.active })}
+                        >
+                          <Power size={15} /> {p.active ? "Desativar" : "Ativar"}
+                        </button>
+                        <button
+                          className="button danger"
+                          type="button"
+                          title="Excluir"
+                          onClick={() => remove(p.id, p.name)}
+                        >
+                          <Trash2 size={15} />
+                        </button>
+                      </>
+                    )}
+                  </td>
                 </tr>
               );
             })}

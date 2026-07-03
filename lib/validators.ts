@@ -122,8 +122,13 @@ export const stockMovementSchema = z
     if ((v.movement_type === "entrada" || v.movement_type === "ajuste") && !v.to_location_id) {
       ctx.addIssue({ code: z.ZodIssueCode.custom, message: "Informe a localização." });
     }
-    if (v.movement_type === "saida" && !v.from_location_id) {
-      ctx.addIssue({ code: z.ZodIssueCode.custom, message: "Informe a localização de origem." });
+    if (v.movement_type === "saida") {
+      if (!v.from_location_id) {
+        ctx.addIssue({ code: z.ZodIssueCode.custom, message: "Informe a localização de origem." });
+      }
+      if (!v.to_location_id) {
+        ctx.addIssue({ code: z.ZodIssueCode.custom, message: "Informe o destino do material." });
+      }
     }
     if (v.movement_type === "transferencia") {
       if (!v.from_location_id || !v.to_location_id) {
@@ -133,6 +138,16 @@ export const stockMovementSchema = z
       }
     }
   });
+
+// Retirada rápida pública (voluntário sem login): apenas saída. Origem é
+// resolvida no servidor a partir do saldo; o destino é um setor real.
+export const quickWithdrawSchema = z.object({
+  product_id: z.string().uuid("Produto obrigatório."),
+  performed_by_name: z.string().trim().min(1, "Informe o responsável pela retirada.").max(120),
+  to_location_id: z.string().uuid("Informe o destino do material."),
+  quantity: z.coerce.number().positive("Quantidade deve ser maior que zero.").max(99999999),
+  reason: nullableText,
+});
 
 export const printStockLabelSchema = z.object({
   product_ids: z.array(z.string().uuid()).min(1, "Selecione ao menos um produto.").max(500),

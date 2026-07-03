@@ -1,7 +1,7 @@
 import Link from "next/link";
-import { AlertTriangle, PackageSearch } from "lucide-react";
+import { redirect } from "next/navigation";
+import { AlertTriangle, MapPin, PackageSearch } from "lucide-react";
 import { getSessionUser } from "@/lib/auth";
-import { canAdjustStock } from "@/lib/permissions";
 import { normalizePublicCode } from "@/lib/qr";
 import { supabaseAdmin } from "@/lib/supabase";
 import {
@@ -10,7 +10,7 @@ import {
   stockUnitLabels,
   type StockUnit,
 } from "@/lib/constants";
-import { StockProductActions } from "@/components/StockProductActions";
+import { QuickWithdrawModal } from "@/components/QuickWithdrawModal";
 
 export const dynamic = "force-dynamic";
 
@@ -60,8 +60,6 @@ export default async function PublicCodePage({
     return <NotRecognized message="Este código ainda não possui um módulo associado." />;
   }
 
-  const user = await getSessionUser();
-
   const { data: product } = await supabaseAdmin
     .from("stock_products")
     .select("id,public_code,name,unit,min_quantity,active,stock_levels(quantity,location_id,stock_locations(name))")
@@ -70,6 +68,12 @@ export default async function PublicCodePage({
 
   if (!product || !product.active) {
     return <NotRecognized message="Produto não encontrado ou desativado." />;
+  }
+
+  const user = await getSessionUser();
+  // Usuário autenticado: abre a tela completa do produto (não a consulta pública).
+  if (user) {
+    redirect(`/stock/${product.id}`);
   }
 
   const levels = ((product.stock_levels ?? []) as unknown as LevelRow[])
@@ -83,11 +87,14 @@ export default async function PublicCodePage({
   const total = levels.reduce((sum, l) => sum + l.quantity, 0);
   const status = stockStatus(total, Number(product.min_quantity));
   const unitLabel = stockUnitLabels[product.unit as StockUnit] ?? product.unit;
+  const currentLocation = levels[0]?.location_name ?? "Estoque";
 
-  // Localizações ativas: necessárias para entrada/transferência (só logado).
-  const { data: locations } = user
-    ? await supabaseAdmin.from("stock_locations").select("id,name").eq("active", true).order("name")
-    : { data: null };
+  // Setores reais (destinos possíveis) para a retirada rápida sem login.
+  const { data: locations } = await supabaseAdmin
+    .from("stock_locations")
+    .select("id,name")
+    .eq("active", true)
+    .order("name");
 
   return (
     <main className="public-page">
@@ -109,35 +116,28 @@ export default async function PublicCodePage({
           <span className="public-balance-unit">{unitLabel}{total === 1 ? "" : "(s)"} em estoque</span>
         </div>
 
-        <div className="public-locations">
-          {levels.length === 0 ? (
-            <p className="muted" style={{ textAlign: "center" }}>Sem saldo registrado em nenhuma localização.</p>
-          ) : (
-            levels.map((l) => (
+        <div className="public-loc-row">
+          <span><MapPin size={13} style={{ verticalAlign: "-2px" }} /> Localização atual</span>
+          <strong>{currentLocation}</strong>
+        </div>
+
+        {levels.length > 1 && (
+          <div className="public-locations">
+            {levels.map((l) => (
               <div key={l.location_id} className="public-loc-row">
                 <span>{l.location_name}</span>
                 <strong>{l.quantity.toLocaleString("pt-BR")}</strong>
               </div>
-            ))
-          )}
-        </div>
-
-        {user ? (
-          <StockProductActions
-            productId={product.id}
-            unitLabel={unitLabel}
-            levels={levels}
-            locations={locations ?? []}
-            canAdjust={canAdjustStock(user)}
-          />
-        ) : (
-          <Link
-            className="button gold public-login-cta"
-            href={`/login?next=/p/${product.public_code}`}
-          >
-            Entrar para movimentar estoque
-          </Link>
+            ))}
+          </div>
         )}
+
+        <QuickWithdrawModal
+          productId={product.id}
+          unitLabel={unitLabel}
+          locations={locations ?? []}
+          loginHref={`/login?next=/p/${product.public_code}`}
+        />
       </div>
     </main>
   );
