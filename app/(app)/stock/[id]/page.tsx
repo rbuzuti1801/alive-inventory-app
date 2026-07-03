@@ -1,8 +1,10 @@
 import Link from "next/link";
-import { ArrowLeft, History, QrCode } from "lucide-react";
+import { ArrowLeft, ExternalLink, History, Printer, QrCode as QrCodeIcon } from "lucide-react";
 import { requireUser } from "@/lib/auth";
 import { canAdjustStock, canManageStock } from "@/lib/permissions";
 import { supabaseAdmin } from "@/lib/supabase";
+import { QrCode } from "@/components/QrCode";
+import { publicUrl } from "@/lib/qr";
 import {
   stockCategoryLabels,
   stockMovementLabels,
@@ -86,7 +88,7 @@ export default async function StockProductDetailPage({
           </Link>
           <h1 style={{ marginTop: 6 }}>{product.name}</h1>
           <p className="muted">
-            <QrCode size={12} style={{ verticalAlign: "-2px" }} /> {product.public_code}
+            <QrCodeIcon size={12} style={{ verticalAlign: "-2px" }} /> {product.public_code}
             {" · "}
             {stockCategoryLabels[product.category as StockCategory] ?? product.category}
             {!product.active && " · Inativo"}
@@ -167,19 +169,37 @@ export default async function StockProductDetailPage({
           </div>
         </section>
 
-        <aside className="panel">
-          <h2 style={{ fontSize: 15, marginBottom: 12 }}>Movimentar</h2>
-          {product.active ? (
-            <StockProductActions
-              productId={product.id}
-              unitLabel={unitLabel}
-              levels={levels}
-              locations={locations ?? []}
-              canAdjust={canAdjustStock(user)}
-            />
-          ) : (
-            <p className="muted">Produto inativo. Reative-o para movimentar.</p>
-          )}
+        <aside className="grid">
+          <section className="panel qr-panel">
+            <h2 style={{ fontSize: 15 }}>Etiqueta / QR Code</h2>
+            <div className="qr-frame">
+              <QrCode value={publicUrl(product.public_code)} size={172} />
+            </div>
+            <p className="sku-badge" style={{ marginTop: 4 }}>{product.public_code}</p>
+            <div className="grid" style={{ gap: 8, width: "100%" }}>
+              <a className="button gold" href={`/labels/print-stock?ids=${product.id}`} target="_blank" rel="noopener">
+                <Printer size={15} /> Imprimir etiqueta
+              </a>
+              <a className="button secondary" href={`/p/${product.public_code}`} target="_blank" rel="noopener">
+                <ExternalLink size={15} /> Abrir página pública
+              </a>
+            </div>
+          </section>
+
+          <section className="panel">
+            <h2 style={{ fontSize: 15, marginBottom: 12 }}>Movimentar</h2>
+            {product.active ? (
+              <StockProductActions
+                productId={product.id}
+                unitLabel={unitLabel}
+                levels={levels}
+                locations={locations ?? []}
+                canAdjust={canAdjustStock(user)}
+              />
+            ) : (
+              <p className="muted">Produto inativo. Reative-o para movimentar.</p>
+            )}
+          </section>
         </aside>
       </div>
     </>
