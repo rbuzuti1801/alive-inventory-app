@@ -2,8 +2,13 @@
 
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Check, ChevronDown, ChevronUp, Cpu, Plus, Trash2, User } from "lucide-react";
-import { stockUnitLabels, type StockUnit } from "@/lib/constants";
+import { Check, ChevronDown, ChevronUp, Cpu, FileText, Plus, Printer, Trash2, User } from "lucide-react";
+import {
+  stockCategoryLabels,
+  stockUnitLabels,
+  type StockCategory,
+  type StockUnit,
+} from "@/lib/constants";
 
 export type ShoppingItem = {
   id: string;
@@ -12,7 +17,89 @@ export type ShoppingItem = {
   added_by_name: string;
   source: "sistema" | "manual";
   unit: string | null;
+  category: string | null;
+  notes: string | null;
 };
+
+function categoryLabel(category: string | null) {
+  if (!category) return "—";
+  return stockCategoryLabels[category as StockCategory] ?? category;
+}
+
+function unitLabel(unit: string | null) {
+  if (!unit) return "—";
+  return stockUnitLabels[unit as StockUnit] ?? unit;
+}
+
+function escapeHtml(value: string) {
+  return value
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
+}
+
+// Documento de impressão autocontido (A4). Recebe as linhas JÁ filtradas e
+// ordenadas exatamente como aparecem na tela; sem menus/botões do sistema.
+function buildPrintDocument(rows: ShoppingItem[]) {
+  const generatedAt = new Date().toLocaleString("pt-BR");
+  const body = rows
+    .map(
+      (it) => `<tr>
+        <td>${escapeHtml(it.item_name)}</td>
+        <td>${escapeHtml(categoryLabel(it.category))}</td>
+        <td class="num">${Number(it.quantity_to_buy).toLocaleString("pt-BR")}</td>
+        <td>${escapeHtml(unitLabel(it.unit))}</td>
+        <td>${it.notes ? escapeHtml(it.notes) : ""}</td>
+      </tr>`,
+    )
+    .join("");
+
+  return `<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8" />
+<title>Lista de Compras — Alive Church</title>
+<style>
+  @page { size: A4; margin: 14mm; }
+  * { box-sizing: border-box; }
+  body { font-family: Arial, Helvetica, sans-serif; color: #111; margin: 0; font-size: 12px; }
+  h1 { font-size: 18px; margin: 0 0 4px; }
+  .meta { font-size: 11px; color: #555; margin-bottom: 14px; }
+  .meta strong { color: #111; }
+  table { width: 100%; border-collapse: collapse; }
+  th, td { border: 1px solid #999; padding: 6px 8px; text-align: left; vertical-align: top; }
+  th { background: #eee; font-size: 10.5px; text-transform: uppercase; letter-spacing: .03em; }
+  /* Repete o cabeçalho da tabela em cada página impressa. */
+  thead { display: table-header-group; }
+  tr { page-break-inside: avoid; }
+  td.num, th.num { text-align: right; white-space: nowrap; }
+  tfoot td { border: none; padding-top: 10px; font-size: 10px; color: #777; }
+  @media screen { body { padding: 24px; max-width: 900px; margin: 0 auto; } }
+</style>
+</head>
+<body onload="window.focus();window.print();">
+  <h1>Lista de Compras — Alive Church</h1>
+  <div class="meta">
+    Gerado em <strong>${generatedAt}</strong> · Total de itens: <strong>${rows.length}</strong>
+  </div>
+  <table>
+    <thead>
+      <tr>
+        <th>Item</th>
+        <th>Categoria</th>
+        <th class="num">Qtd. a comprar</th>
+        <th>Unidade</th>
+        <th>Observação</th>
+      </tr>
+    </thead>
+    <tbody>
+      ${body || `<tr><td colspan="5">Nenhum item na lista.</td></tr>`}
+    </tbody>
+  </table>
+</body>
+</html>`;
+}
 
 type SortKey = "item_name" | "quantity_to_buy" | "added_by_name";
 type SortDir = "asc" | "desc";
@@ -94,6 +181,24 @@ export function StockShoppingList({ items }: { items: ShoppingItem[] }) {
     if (ok) setEditingId(null);
   }
 
+  // Abre um documento de impressão com exatamente as linhas visíveis (pesquisa +
+  // ordenação atuais). A mesma janela serve para "Imprimir" e "Gerar PDF"
+  // (destino "Salvar como PDF" no diálogo de impressão).
+  function printList() {
+    if (rows.length === 0) {
+      setError("A lista está vazia — nada para imprimir.");
+      return;
+    }
+    setError("");
+    const win = window.open("", "_blank");
+    if (!win) {
+      setError("Permita pop-ups para imprimir ou gerar o PDF.");
+      return;
+    }
+    win.document.write(buildPrintDocument(rows));
+    win.document.close();
+  }
+
   return (
     <div className="grid">
       {error && <div className="alert error">{error}</div>}
@@ -125,13 +230,21 @@ export function StockShoppingList({ items }: { items: ShoppingItem[] }) {
       </section>
 
       <section className="panel">
-        <div className="field">
-          <label>Pesquisar</label>
-          <input
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            placeholder="Buscar por item ou quem inseriu"
-          />
+        <div className="toolbar" style={{ alignItems: "flex-end" }}>
+          <div className="field" style={{ flex: 1 }}>
+            <label>Pesquisar</label>
+            <input
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder="Buscar por item ou quem inseriu"
+            />
+          </div>
+          <button className="button secondary" type="button" onClick={printList} disabled={rows.length === 0}>
+            <Printer size={15} /> Imprimir Lista
+          </button>
+          <button className="button gold" type="button" onClick={printList} disabled={rows.length === 0}>
+            <FileText size={15} /> Gerar PDF
+          </button>
         </div>
       </section>
 

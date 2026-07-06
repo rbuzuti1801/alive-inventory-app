@@ -121,18 +121,23 @@ async function MovementsTab({ params }: { params: SearchParams }) {
 async function ShoppingListTab() {
   const { data } = await supabaseAdmin
     .from("stock_shopping_list")
-    .select("id,item_name,quantity_to_buy,added_by_name,source,stock_products(unit)")
+    .select("id,item_name,quantity_to_buy,added_by_name,source,stock_products(unit,category,notes)")
     .eq("status", "pendente")
     .order("created_at", { ascending: false });
 
-  const items: ShoppingItem[] = (data ?? []).map((i) => ({
-    id: i.id,
-    item_name: i.item_name,
-    quantity_to_buy: Number(i.quantity_to_buy),
-    added_by_name: i.added_by_name,
-    source: i.source as "sistema" | "manual",
-    unit: (i.stock_products as { unit?: string } | null)?.unit ?? null,
-  }));
+  const items: ShoppingItem[] = (data ?? []).map((i) => {
+    const product = i.stock_products as { unit?: string; category?: string; notes?: string } | null;
+    return {
+      id: i.id,
+      item_name: i.item_name,
+      quantity_to_buy: Number(i.quantity_to_buy),
+      added_by_name: i.added_by_name,
+      source: i.source as "sistema" | "manual",
+      unit: product?.unit ?? null,
+      category: product?.category ?? null,
+      notes: product?.notes ?? null,
+    };
+  });
 
   return <StockShoppingList items={items} />;
 }
