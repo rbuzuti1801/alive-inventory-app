@@ -113,6 +113,9 @@ export function StockShoppingList({ items }: { items: ShoppingItem[] }) {
   const [sortDir, setSortDir] = useState<SortDir>("asc");
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editQty, setEditQty] = useState("");
+  // Itens recém-marcados como comprados — dá o feedback visual (verde + check)
+  // imediato antes do refresh remover a linha da lista.
+  const [purchased, setPurchased] = useState<Set<string>>(new Set());
 
   async function call(path: string, method: string, payload?: Record<string, unknown>) {
     setError("");
@@ -329,15 +332,29 @@ export function StockShoppingList({ items }: { items: ShoppingItem[] }) {
                     </span>
                   </td>
                   <td className="actions stock-row-actions">
-                    <button
-                      className="button secondary"
-                      type="button"
-                      title="Marcar como comprado"
-                      disabled={busy}
-                      onClick={() => call(`/api/stock/shopping-list/${it.id}`, "PATCH", { status: "comprado" })}
-                    >
-                      <Check size={15} /> Comprado
-                    </button>
+                    {(() => {
+                      const isPurchased = purchased.has(it.id);
+                      return (
+                        <button
+                          className={`button ${isPurchased ? "success" : "secondary"}`}
+                          type="button"
+                          title={isPurchased ? "Comprado" : "Marcar como comprado"}
+                          disabled={busy || isPurchased}
+                          onClick={() => {
+                            setPurchased((prev) => new Set(prev).add(it.id));
+                            call(`/api/stock/shopping-list/${it.id}`, "PATCH", { status: "comprado" });
+                          }}
+                        >
+                          {isPurchased ? (
+                            <>
+                              <Check size={15} /> Comprado
+                            </>
+                          ) : (
+                            "Marcar como comprado"
+                          )}
+                        </button>
+                      );
+                    })()}
                     <button
                       className="button danger"
                       type="button"

@@ -322,6 +322,7 @@ h2 { font-size: 1.0625rem; font-weight: 700; margin: 0 0 16px; color: var(--text
 
 .button.gold { background: var(--brand-gold); color: var(--brand); }
 .button.danger { background: var(--danger); }
+.button.success { background: var(--success); color: white; }
 
 /* ── Tables ────────────────────────────────────────────────── */
 .table-wrap {
