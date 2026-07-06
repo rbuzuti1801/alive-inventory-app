@@ -152,3 +152,20 @@ export const quickWithdrawSchema = z.object({
 export const printStockLabelSchema = z.object({
   product_ids: z.array(z.string().uuid()).min(1, "Selecione ao menos um produto.").max(500),
 });
+
+// ── Lista de Compras (reposição) ──────────────────────────────────────────
+// Inserção manual: "Quem inseriu" NÃO vem do cliente — é sempre o nome do
+// usuário logado, definido no servidor.
+export const shoppingListManualSchema = z.object({
+  item_name: z.string().trim().min(1, "Informe o item.").max(150),
+  quantity_to_buy: z.coerce.number().min(0, "Quantidade não pode ser negativa.").max(999999),
+});
+
+export const shoppingListUpdateSchema = z
+  .object({
+    quantity_to_buy: z.coerce.number().min(0, "Quantidade não pode ser negativa.").max(999999).optional(),
+    status: z.enum(["pendente", "comprado"]).optional(),
+  })
+  .refine((v) => v.quantity_to_buy !== undefined || v.status !== undefined, {
+    message: "Nada para atualizar.",
+  });

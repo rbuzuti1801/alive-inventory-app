@@ -116,3 +116,10 @@ export const stockStatusLabels: Record<StockStatus, string> = {
   atencao: "Atenção",
   baixo: "Baixo",
 };
+
+// ── Lista de Compras (reposição) ─────────────────────────────────────────
+export const shoppingListSources = ["sistema", "manual"] as const;
+export type ShoppingListSource = (typeof shoppingListSources)[number];
+
+export const shoppingListStatuses = ["pendente", "comprado"] as const;
+export type ShoppingListStatus = (typeof shoppingListStatuses)[number];

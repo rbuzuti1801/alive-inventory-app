@@ -5,10 +5,11 @@ import { StockTabs, type StockTab } from "@/components/StockTabs";
 import { StockProductsManager } from "@/components/StockProductsManager";
 import { StockLocationsManager } from "@/components/StockLocationsManager";
 import { StockMovementsList } from "@/components/StockMovementsList";
+import { StockShoppingList, type ShoppingItem } from "@/components/StockShoppingList";
 
 export const dynamic = "force-dynamic";
 
-const tabs: StockTab[] = ["produtos", "localizacoes", "movimentacoes"];
+const tabs: StockTab[] = ["produtos", "localizacoes", "movimentacoes", "compras"];
 
 type SearchParams = {
   tab?: string;
@@ -33,7 +34,7 @@ export default async function StockPage({
     <div className="grid">
       <div>
         <h1>Estoque</h1>
-        <p className="muted">Materiais de consumo — produtos, localizações e movimentações.</p>
+        <p className="muted">Materiais de consumo — produtos, localizações, movimentações e lista de compras.</p>
       </div>
 
       <StockTabs active={tab} />
@@ -41,6 +42,7 @@ export default async function StockPage({
       {tab === "produtos" && <ProductsTab params={params} canManage={canManage} />}
       {tab === "localizacoes" && <LocationsTab canManage={canManage} />}
       {tab === "movimentacoes" && <MovementsTab params={params} />}
+      {tab === "compras" && <ShoppingListTab />}
     </div>
   );
 }
@@ -113,4 +115,24 @@ async function MovementsTab({ params }: { params: SearchParams }) {
       movementType={params.movement_type ?? ""}
     />
   );
+}
+
+// Lista de Compras: apenas itens pendentes (comprados saem da lista).
+async function ShoppingListTab() {
+  const { data } = await supabaseAdmin
+    .from("stock_shopping_list")
+    .select("id,item_name,quantity_to_buy,added_by_name,source,stock_products(unit)")
+    .eq("status", "pendente")
+    .order("created_at", { ascending: false });
+
+  const items: ShoppingItem[] = (data ?? []).map((i) => ({
+    id: i.id,
+    item_name: i.item_name,
+    quantity_to_buy: Number(i.quantity_to_buy),
+    added_by_name: i.added_by_name,
+    source: i.source as "sistema" | "manual",
+    unit: (i.stock_products as { unit?: string } | null)?.unit ?? null,
+  }));
+
+  return <StockShoppingList items={items} />;
 }

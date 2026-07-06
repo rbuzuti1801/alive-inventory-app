@@ -623,6 +623,14 @@ tr.row-selected { background: #F7F9FF; }
 .stock-tab:hover { color: var(--brand); }
 .stock-tab-active { color: var(--brand); border-bottom-color: var(--brand-gold); }
 
+/* Botão-cabeçalho ordenável / gatilho inline (herda cor e fonte da célula) */
+.sort-th {
+  display: inline-flex; align-items: center; gap: 4px;
+  background: none; border: none; padding: 0; margin: 0;
+  font: inherit; color: inherit; cursor: pointer; text-align: left;
+}
+.sort-th:hover { color: var(--brand); }
+
 /* ── Estoque: tela completa do produto ─────────────────────── */
 .back-link {
   display: inline-flex; align-items: center; gap: 4px;
