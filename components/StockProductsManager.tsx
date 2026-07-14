@@ -173,27 +173,34 @@ export function StockProductsManager({ products, locations, canManage, search, c
       )}
 
       <section className="panel">
-        <form
-          className="toolbar"
-          onSubmit={(e) => { e.preventDefault(); applyFilters(new FormData(e.currentTarget)); }}
-        >
-          <div className="field"><label>Buscar</label><input name="search" defaultValue={search} placeholder="Nome do produto" /></div>
-          <div className="field">
-            <label>Categoria</label>
-            <select name="category" defaultValue={category}>
-              <option value="">Todas</option>
-              {stockCategories.map((c) => <option key={c} value={c}>{stockCategoryLabels[c]}</option>)}
-            </select>
-          </div>
-          <div className="field">
-            <label>Situação</label>
-            <select name="status" defaultValue={status}>
-              <option value="">Todos</option>
-              <option value="ativos">Ativos</option>
-              <option value="inativos">Inativos</option>
-            </select>
-          </div>
-          <button className="button secondary" type="submit">Filtrar</button>
+        {/* O cadastro abre um <form> próprio dentro do modal, por isso ele fica
+            FORA deste form de filtros. Em <form> aninhado o evento submit não
+            sobe até a raiz do React (onde o submit é delegado): o onSubmit do
+            modal nunca rodava, não havia preventDefault e o navegador fazia o
+            GET nativo — a página recarregava e o produto jamais era criado. */}
+        <div className="toolbar">
+          <form
+            className="toolbar-filters"
+            onSubmit={(e) => { e.preventDefault(); applyFilters(new FormData(e.currentTarget)); }}
+          >
+            <div className="field"><label>Buscar</label><input name="search" defaultValue={search} placeholder="Nome do produto" /></div>
+            <div className="field">
+              <label>Categoria</label>
+              <select name="category" defaultValue={category}>
+                <option value="">Todas</option>
+                {stockCategories.map((c) => <option key={c} value={c}>{stockCategoryLabels[c]}</option>)}
+              </select>
+            </div>
+            <div className="field">
+              <label>Situação</label>
+              <select name="status" defaultValue={status}>
+                <option value="">Todos</option>
+                <option value="ativos">Ativos</option>
+                <option value="inativos">Inativos</option>
+              </select>
+            </div>
+            <button className="button secondary" type="submit">Filtrar</button>
+          </form>
           {selected.size > 0 && (
             <button className="button secondary" type="button" onClick={printSelected}>
               <Printer size={15} /> Imprimir {selected.size} etiqueta(s)
@@ -204,7 +211,7 @@ export function StockProductsManager({ products, locations, canManage, search, c
               <StockProductCreateModal locations={locations} onCreated={handleCreated} />
             </span>
           )}
-        </form>
+        </div>
       </section>
 
       <section className="table-wrap">

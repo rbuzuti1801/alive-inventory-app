@@ -249,6 +249,11 @@ h2 { font-size: 1.0625rem; font-weight: 700; margin: 0 0 16px; color: var(--text
   margin-bottom: 16px;
 }
 
+/* O form de filtros é só o dono dos campos: `display: contents` mantém cada
+   campo como item direto da .toolbar, preservando o layout de quando o form
+   era a própria toolbar. Assim o botão de cadastro pode viver fora dele. */
+.toolbar-filters { display: contents; }
+
 /* ── Form fields ───────────────────────────────────────────── */
 .field { display: grid; gap: 5px; }
 
