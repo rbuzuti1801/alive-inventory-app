@@ -122,8 +122,13 @@ export const stockMovementSchema = z
     if ((v.movement_type === "entrada" || v.movement_type === "ajuste") && !v.to_location_id) {
       ctx.addIssue({ code: z.ZodIssueCode.custom, message: "Informe a localização." });
     }
-    if (v.movement_type === "saida" && !v.from_location_id) {
-      ctx.addIssue({ code: z.ZodIssueCode.custom, message: "Informe a localização de origem." });
+    if (v.movement_type === "saida") {
+      if (!v.from_location_id) {
+        ctx.addIssue({ code: z.ZodIssueCode.custom, message: "Informe a localização de origem." });
+      }
+      if (!v.to_location_id) {
+        ctx.addIssue({ code: z.ZodIssueCode.custom, message: "Informe o destino do material." });
+      }
     }
     if (v.movement_type === "transferencia") {
       if (!v.from_location_id || !v.to_location_id) {
@@ -134,6 +139,37 @@ export const stockMovementSchema = z
     }
   });
 
+// Retirada rápida pública (voluntário sem login): apenas saída. Origem é
+// resolvida no servidor a partir do saldo; o destino é um setor real.
+export const quickWithdrawSchema = z.object({
+  product_id: z.string().uuid("Produto obrigatório."),
+  performed_by_name: z.string().trim().min(1, "Informe o responsável pela retirada.").max(120),
+  to_location_id: z.string().uuid("Informe o destino do material."),
+  // Origem escolhida pelo usuário quando o produto está em mais de uma
+  // localização. Opcional: com saldo em uma única localização, o servidor a
+  // resolve automaticamente.
+  from_location_id: nullableUuid,
+  quantity: z.coerce.number().positive("Quantidade deve ser maior que zero.").max(99999999),
+  reason: nullableText,
+});
+
 export const printStockLabelSchema = z.object({
   product_ids: z.array(z.string().uuid()).min(1, "Selecione ao menos um produto.").max(500),
 });
+
+// ── Lista de Compras (reposição) ──────────────────────────────────────────
+// Inserção manual: "Quem inseriu" NÃO vem do cliente — é sempre o nome do
+// usuário logado, definido no servidor.
+export const shoppingListManualSchema = z.object({
+  item_name: z.string().trim().min(1, "Informe o item.").max(150),
+  quantity_to_buy: z.coerce.number().min(0, "Quantidade não pode ser negativa.").max(999999),
+});
+
+export const shoppingListUpdateSchema = z
+  .object({
+    quantity_to_buy: z.coerce.number().min(0, "Quantidade não pode ser negativa.").max(999999).optional(),
+    status: z.enum(["pendente", "comprado"]).optional(),
+  })
+  .refine((v) => v.quantity_to_buy !== undefined || v.status !== undefined, {
+    message: "Nada para atualizar.",
+  });

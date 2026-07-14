@@ -32,6 +32,11 @@ export function StockProductActions({ productId, unitLabel, levels, locations, c
   const [success, setSuccess] = useState("");
 
   const withBalance = useMemo(() => levels.filter((l) => l.quantity > 0), [levels]);
+  // "Estoque" é o destino padrão de uma Entrada (onde o material é armazenado).
+  const defaultStorage = useMemo(
+    () => locations.find((l) => l.name.trim().toLowerCase() === "estoque")?.id ?? "",
+    [locations],
+  );
 
   function open(type: StockMovementType) {
     setAction(type);
@@ -41,8 +46,12 @@ export function StockProductActions({ productId, unitLabel, levels, locations, c
     // Auto-seleção quando só existe uma opção (menos toques).
     const onlyBalance = withBalance.length === 1 ? withBalance[0].location_id : "";
     const onlyLocation = locations.length === 1 ? locations[0].id : "";
+    // Origem: onde há saldo (saída/transferência).
     setFromLocation(type === "saida" || type === "transferencia" ? onlyBalance : "");
-    setToLocation(type === "entrada" ? onlyLocation : type === "ajuste" ? onlyBalance || onlyLocation : "");
+    // Destino: para onde o material vai. Entrada usa "Estoque" por padrão.
+    setToLocation(
+      type === "entrada" ? defaultStorage || onlyLocation : type === "ajuste" ? onlyBalance || onlyLocation : "",
+    );
   }
 
   function bump(delta: number) {
@@ -80,7 +89,8 @@ export function StockProductActions({ productId, unitLabel, levels, locations, c
   }
 
   const needsFrom = action === "saida" || action === "transferencia";
-  const needsTo = action === "entrada" || action === "ajuste" || action === "transferencia";
+  const needsTo =
+    action === "entrada" || action === "saida" || action === "ajuste" || action === "transferencia";
 
   return (
     <div className="stock-actions">
@@ -125,7 +135,7 @@ export function StockProductActions({ productId, unitLabel, levels, locations, c
 
             {needsFrom && (
               <div className="field">
-                <label>Origem</label>
+                <label>Origem {action === "transferencia" ? "(de onde sai)" : "(de onde retirar)"}</label>
                 <select value={fromLocation} onChange={(e) => setFromLocation(e.target.value)}>
                   <option value="">Selecione a origem…</option>
                   {withBalance.map((l) => (
@@ -137,11 +147,21 @@ export function StockProductActions({ productId, unitLabel, levels, locations, c
               </div>
             )}
 
+            {action === "transferencia" && <div className="stock-flow-arrow" aria-hidden>↓</div>}
+
             {needsTo && (
               <div className="field">
-                <label>{action === "ajuste" ? "Localização" : "Destino"}</label>
+                <label>
+                  {action === "ajuste"
+                    ? "Localização"
+                    : action === "saida"
+                      ? "Destino (para onde vai)"
+                      : action === "transferencia"
+                        ? "Destino (para onde vai)"
+                        : "Destino (onde armazenar)"}
+                </label>
                 <select value={toLocation} onChange={(e) => setToLocation(e.target.value)}>
-                  <option value="">Selecione…</option>
+                  <option value="">Selecione o destino…</option>
                   {locations
                     .filter((l) => !(action === "transferencia" && l.id === fromLocation))
                     .map((l) => (
