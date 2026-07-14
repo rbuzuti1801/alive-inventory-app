@@ -145,6 +145,10 @@ export const quickWithdrawSchema = z.object({
   product_id: z.string().uuid("Produto obrigatório."),
   performed_by_name: z.string().trim().min(1, "Informe o responsável pela retirada.").max(120),
   to_location_id: z.string().uuid("Informe o destino do material."),
+  // Origem escolhida pelo usuário quando o produto está em mais de uma
+  // localização. Opcional: com saldo em uma única localização, o servidor a
+  // resolve automaticamente.
+  from_location_id: nullableUuid,
   quantity: z.coerce.number().positive("Quantidade deve ser maior que zero.").max(99999999),
   reason: nullableText,
 });

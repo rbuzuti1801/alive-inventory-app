@@ -136,6 +136,9 @@ export default async function PublicCodePage({
           productId={product.id}
           unitLabel={unitLabel}
           locations={locations ?? []}
+          origins={levels
+            .filter((l) => l.quantity > 0)
+            .map((l) => ({ id: l.location_id, name: l.location_name, quantity: l.quantity }))}
           loginHref={`/login?next=/p/${product.public_code}`}
         />
       </div>

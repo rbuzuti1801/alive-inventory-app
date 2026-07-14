@@ -1,7 +1,5 @@
 import { NextResponse, type NextRequest } from "next/server";
-
-// "/p" é a página pública consultiva dos QR Codes (identificação por public_code).
-const publicPaths = ["/login", "/api/auth/login", "/p"];
+import { isPublicPath } from "@/lib/access";
 
 // Só aceita retornos relativos internos (evita open redirect via ?next=).
 function safeNext(next: string | null) {
@@ -10,7 +8,7 @@ function safeNext(next: string | null) {
 
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
-  const isPublic = publicPaths.some((path) => pathname === path || pathname.startsWith(`${path}/`));
+  const isPublic = isPublicPath(pathname);
   const hasSession = Boolean(request.cookies.get("alive_inventory_session")?.value);
 
   if (!isPublic && !hasSession && !pathname.startsWith("/_next")) {

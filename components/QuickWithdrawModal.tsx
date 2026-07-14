@@ -5,11 +5,13 @@ import { useRouter } from "next/navigation";
 import { CheckCircle2, LogIn, Minus, Plus, PackageMinus, X } from "lucide-react";
 
 type Location = { id: string; name: string };
+type Origin = { id: string; name: string; quantity: number };
 
 type Props = {
   productId: string;
   unitLabel: string;
   locations: Location[];
+  origins: Origin[];
   loginHref: string;
 };
 
@@ -17,9 +19,11 @@ const presets = [1, 2, 5];
 
 // Retirada rápida SEM login (voluntários). Registra uma saída informando o
 // responsável e o destino (setor real). O saldo nunca fica negativo — a
-// validação final é feita pelo servidor.
-export function QuickWithdrawModal({ productId, unitLabel, locations, loginHref }: Props) {
+// validação final é feita pelo servidor. Quando o produto existe em mais de
+// uma localização, o usuário escolhe a origem (com o saldo disponível de cada).
+export function QuickWithdrawModal({ productId, unitLabel, locations, origins, loginHref }: Props) {
   const router = useRouter();
+  const multiOrigin = origins.length > 1;
   const [open, setOpen] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
@@ -27,12 +31,20 @@ export function QuickWithdrawModal({ productId, unitLabel, locations, loginHref 
 
   const [name, setName] = useState("");
   const [destination, setDestination] = useState("");
+  const [origin, setOrigin] = useState(origins.length === 1 ? origins[0].id : "");
   const [quantity, setQuantity] = useState("1");
   const [notes, setNotes] = useState("");
+
+  const selectedOrigin = origins.find((o) => o.id === origin) ?? null;
+  const qtyNum = Number(quantity);
+  // Saldo máximo retirável: o da origem escolhida (ou o total quando há só uma).
+  const maxAvailable = selectedOrigin?.quantity ?? (origins.length === 1 ? origins[0].quantity : undefined);
+  const overBalance = maxAvailable !== undefined && qtyNum > maxAvailable;
 
   function reset() {
     setName("");
     setDestination("");
+    setOrigin(origins.length === 1 ? origins[0].id : "");
     setQuantity("1");
     setNotes("");
     setError("");
@@ -49,27 +61,50 @@ export function QuickWithdrawModal({ productId, unitLabel, locations, loginHref 
       const res = await fetch("/api/stock/quick-withdraw", {
         method: "POST",
         headers: { "content-type": "application/json" },
+        // Não seguir redirects: se o middleware (ou auth) redirecionar, tratamos
+        // como falha em vez de exibir sucesso enganoso.
+        redirect: "manual",
         body: JSON.stringify({
           product_id: productId,
           performed_by_name: name,
           to_location_id: destination,
+          from_location_id: origin || null,
           quantity: Number(quantity),
           reason: notes || null,
         }),
       });
-      const json = await res.json().catch(() => ({}));
-      if (!res.ok) {
-        setError(json.error ?? "Não foi possível registrar a retirada.");
+
+      // `type === "opaqueredirect"` (com redirect:manual) ou status fora de 2xx:
+      // a operação NÃO foi concluída pelo banco. Nunca mostrar sucesso.
+      if (res.type === "opaqueredirect" || res.status === 0) {
+        setError("Não foi possível registrar a retirada (sessão/redirecionamento). Tente novamente.");
         return;
       }
+
+      const json = await res.json().catch(() => ({} as Record<string, unknown>));
+      if (!res.ok) {
+        setError((json.error as string) ?? "Não foi possível registrar a retirada.");
+        return;
+      }
+
       setSuccess(`Retirada de ${quantity} ${unitLabel.toLowerCase()}(s) registrada. Obrigado, ${name}!`);
       setOpen(false);
       reset();
       router.refresh();
+    } catch {
+      setError("Falha de conexão. Verifique a internet e tente novamente.");
     } finally {
       setBusy(false);
     }
   }
+
+  const confirmDisabled =
+    busy ||
+    !name.trim() ||
+    !destination ||
+    (multiOrigin && !origin) ||
+    qtyNum < 1 ||
+    overBalance;
 
   return (
     <>
@@ -107,6 +142,20 @@ export function QuickWithdrawModal({ productId, unitLabel, locations, loginHref 
               <input value={name} onChange={(e) => setName(e.target.value)} placeholder="Seu nome" maxLength={120} />
             </div>
 
+            {multiOrigin && (
+              <div className="field">
+                <label>Retirar de * (origem)</label>
+                <select value={origin} onChange={(e) => setOrigin(e.target.value)}>
+                  <option value="">Selecione a origem…</option>
+                  {origins.map((o) => (
+                    <option key={o.id} value={o.id}>
+                      {o.name} — {o.quantity.toLocaleString("pt-BR")} disponível
+                    </option>
+                  ))}
+                </select>
+              </div>
+            )}
+
             <div className="field">
               <label>Destino * (para onde vai)</label>
               <select value={destination} onChange={(e) => setDestination(e.target.value)}>
@@ -134,6 +183,13 @@ export function QuickWithdrawModal({ productId, unitLabel, locations, loginHref 
                   <Plus size={18} />
                 </button>
               </div>
+              {maxAvailable !== undefined && (
+                <p className={`muted${overBalance ? " stock-over-balance" : ""}`} style={{ fontSize: 12, margin: "4px 0 0" }}>
+                  {overBalance
+                    ? `Saldo insuficiente: disponível ${maxAvailable.toLocaleString("pt-BR")}.`
+                    : `Disponível: ${maxAvailable.toLocaleString("pt-BR")}.`}
+                </p>
+              )}
               <div className="stock-presets">
                 {presets.map((p) => (
                   <button key={p} className="stock-preset-btn" onClick={() => setQuantity(String(p))} disabled={busy}>
@@ -151,7 +207,7 @@ export function QuickWithdrawModal({ productId, unitLabel, locations, loginHref 
             <button
               className="button gold stock-confirm"
               onClick={submit}
-              disabled={busy || !name.trim() || !destination || Number(quantity) < 1}
+              disabled={confirmDisabled}
             >
               {busy ? "Registrando…" : "Confirmar retirada"}
             </button>
