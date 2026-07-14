@@ -5,13 +5,13 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Eye, Pencil, Power, Printer, QrCode, Trash2 } from "lucide-react";
 import { SortableTh, TableFooter, useTableSort, usePagination, type SortAccessors } from "@/components/table-controls";
+import { StockProductCreateModal, type CreatedProduct } from "@/components/StockProductCreateModal";
 import {
   stockCategories,
   stockCategoryLabels,
   stockStatus,
   stockStatusLabels,
   stockUnitLabels,
-  stockUnits,
   type StockCategory,
   type StockUnit,
 } from "@/lib/constants";
@@ -28,7 +28,13 @@ type Product = {
   total: number;
 };
 
-type Props = { products: Product[]; canManage: boolean; search: string; category: string };
+type Props = {
+  products: Product[];
+  locations: { id: string; name: string }[];
+  canManage: boolean;
+  search: string;
+  category: string;
+};
 
 type SortKey = "name" | "category" | "total" | "min_quantity" | "status";
 
@@ -48,9 +54,10 @@ const accessors: SortAccessors<Product, SortKey> = {
   status: (p) => stockStatusLabels[stockStatus(p.total, Number(p.min_quantity))],
 };
 
-export function StockProductsManager({ products, canManage, search, category }: Props) {
+export function StockProductsManager({ products, locations, canManage, search, category }: Props) {
   const router = useRouter();
   const [error, setError] = useState("");
+  const [created, setCreated] = useState<CreatedProduct | null>(null);
   const [selected, setSelected] = useState<Set<string>>(new Set());
 
   const { sorted, sort, toggleSort } = useTableSort(products, accessors);
@@ -111,40 +118,11 @@ export function StockProductsManager({ products, canManage, search, category }: 
     <div className="grid">
       {error && <div className="alert error">{error}</div>}
 
-      {canManage && (
-        <section className="panel">
-          <h2>Novo produto</h2>
-          <form
-            className="toolbar"
-            onSubmit={(e) => {
-              e.preventDefault();
-              const f = new FormData(e.currentTarget);
-              save("/api/stock/products", "POST", {
-                name: f.get("name"),
-                category: f.get("category"),
-                unit: f.get("unit"),
-                min_quantity: Number(f.get("min_quantity") ?? 0),
-              });
-              e.currentTarget.reset();
-            }}
-          >
-            <div className="field"><label>Nome</label><input name="name" required placeholder="Água mineral 500ml" /></div>
-            <div className="field">
-              <label>Categoria</label>
-              <select name="category" defaultValue="outros">
-                {stockCategories.map((c) => <option key={c} value={c}>{stockCategoryLabels[c]}</option>)}
-              </select>
-            </div>
-            <div className="field">
-              <label>Unidade</label>
-              <select name="unit" defaultValue="un">
-                {stockUnits.map((u) => <option key={u} value={u}>{stockUnitLabels[u]}</option>)}
-              </select>
-            </div>
-            <div className="field"><label>Estoque mínimo</label><input name="min_quantity" type="number" min={0} defaultValue={0} /></div>
-            <button className="button" type="submit">Criar</button>
-          </form>
-        </section>
+      {created && (
+        <div className="alert success">
+          Produto <strong>{created.name}</strong> criado.{" "}
+          <Link href={`/stock/${created.id}`}>Ver produto</Link>
+        </div>
       )}
 
       <section className="panel">
@@ -162,9 +140,14 @@ export function StockProductsManager({ products, canManage, search, category }: 
           </div>
           <button className="button secondary" type="submit">Filtrar</button>
           {selected.size > 0 && (
-            <button className="button gold" type="button" onClick={printSelected}>
+            <button className="button secondary" type="button" onClick={printSelected}>
               <Printer size={15} /> Imprimir {selected.size} etiqueta(s)
             </button>
+          )}
+          {canManage && (
+            <span style={{ marginLeft: "auto" }}>
+              <StockProductCreateModal locations={locations} onCreated={setCreated} />
+            </span>
           )}
         </form>
       </section>

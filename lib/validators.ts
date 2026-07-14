@@ -99,6 +99,23 @@ export const stockProductSchema = z.object({
   active: z.boolean().optional(),
 });
 
+// Criação de produto: além do cadastro, aceita um saldo inicial opcional que o
+// back-end converte em movimentação de entrada ("Estoque inicial").
+export const stockProductCreateSchema = stockProductSchema
+  .extend({
+    initial_quantity: z.coerce.number().min(0, "Quantidade inicial não pode ser negativa.").max(99999999).default(0),
+    initial_location_id: nullableUuid,
+  })
+  .superRefine((v, ctx) => {
+    if (v.initial_quantity > 0 && !v.initial_location_id) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ["initial_location_id"],
+        message: "Informe a localização inicial quando houver quantidade inicial.",
+      });
+    }
+  });
+
 export const stockLocationSchema = z.object({
   name: z.string().trim().min(1, "Nome obrigatório.").max(120),
   description: nullableText,

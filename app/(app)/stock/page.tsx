@@ -59,13 +59,25 @@ async function ProductsTab({ params, canManage }: { params: SearchParams; canMan
   }
   if (params.category) query = query.eq("category", params.category);
 
-  const { data } = await query;
+  // Localizações ativas alimentam o campo "Localização inicial" do novo produto.
+  const [{ data }, { data: locations }] = await Promise.all([
+    query,
+    supabaseAdmin.from("stock_locations").select("id,name").eq("active", true).order("name"),
+  ]);
   const products = (data ?? []).map((p) => ({
     ...p,
     total: ((p.stock_levels ?? []) as { quantity: number }[]).reduce((sum, l) => sum + Number(l.quantity), 0),
   }));
 
-  return <StockProductsManager products={products} canManage={canManage} search={params.search ?? ""} category={params.category ?? ""} />;
+  return (
+    <StockProductsManager
+      products={products}
+      locations={locations ?? []}
+      canManage={canManage}
+      search={params.search ?? ""}
+      category={params.category ?? ""}
+    />
+  );
 }
 
 async function LocationsTab({ canManage }: { canManage: boolean }) {
