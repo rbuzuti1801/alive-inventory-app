@@ -4,6 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Eye, Pencil, Power, Printer, QrCode, Trash2 } from "lucide-react";
+import { SortableTh, TableFooter, useTableSort, usePagination, type SortAccessors } from "@/components/table-controls";
 import {
   stockCategories,
   stockCategoryLabels,
@@ -29,10 +30,37 @@ type Product = {
 
 type Props = { products: Product[]; canManage: boolean; search: string; category: string };
 
+type SortKey = "name" | "category" | "total" | "min_quantity" | "status";
+
+const columns: { key: SortKey; label: string }[] = [
+  { key: "name", label: "Produto" },
+  { key: "category", label: "Categoria" },
+  { key: "total", label: "Saldo" },
+  { key: "min_quantity", label: "Mínimo" },
+  { key: "status", label: "Status" },
+];
+
+const accessors: SortAccessors<Product, SortKey> = {
+  name: (p) => p.name,
+  category: (p) => stockCategoryLabels[p.category as StockCategory] ?? p.category,
+  total: (p) => p.total,
+  min_quantity: (p) => Number(p.min_quantity),
+  status: (p) => stockStatusLabels[stockStatus(p.total, Number(p.min_quantity))],
+};
+
 export function StockProductsManager({ products, canManage, search, category }: Props) {
   const router = useRouter();
   const [error, setError] = useState("");
   const [selected, setSelected] = useState<Set<string>>(new Set());
+
+  const { sorted, sort, toggleSort } = useTableSort(products, accessors);
+  // Busca/categoria vêm da URL: mudou o filtro, volta para a primeira página.
+  const { visible, total, start, page, totalPages, pageSize, setPageSize, setPage } = usePagination(sorted, `${search}|${category}`);
+
+  function sortBy(key: SortKey) {
+    toggleSort(key);
+    setPage(1);
+  }
 
   function toggle(id: string) {
     setSelected((prev) => {
@@ -146,20 +174,18 @@ export function StockProductsManager({ products, canManage, search, category }: 
           <thead>
             <tr>
               <th></th>
-              <th>Produto</th>
-              <th>Categoria</th>
-              <th>Saldo</th>
-              <th>Mínimo</th>
-              <th>Status</th>
+              {columns.map((col) => (
+                <SortableTh key={col.key} column={col.key} label={col.label} sort={sort} onSort={sortBy} />
+              ))}
               <th>Etiqueta</th>
               <th>Ações</th>
             </tr>
           </thead>
           <tbody>
-            {products.length === 0 && (
+            {total === 0 && (
               <tr><td colSpan={8} className="muted">Nenhum produto cadastrado.</td></tr>
             )}
-            {products.map((p) => {
+            {visible.map((p) => {
               const status = stockStatus(p.total, Number(p.min_quantity));
               const unitLabel = stockUnitLabels[p.unit as StockUnit] ?? p.unit;
               return (
@@ -214,6 +240,13 @@ export function StockProductsManager({ products, canManage, search, category }: 
           </tbody>
         </table>
       </section>
+
+      <TableFooter
+        total={total} start={start} shown={visible.length}
+        page={page} totalPages={totalPages}
+        pageSize={pageSize} onPageSize={setPageSize} onPage={setPage}
+        noun="produtos" nounSingular="produto"
+      />
     </div>
   );
 }

@@ -2,7 +2,8 @@
 
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Check, ChevronDown, ChevronUp, Cpu, FileText, Plus, Printer, Trash2, User } from "lucide-react";
+import { Check, Cpu, FileText, Plus, Printer, Trash2, User } from "lucide-react";
+import { SortableTh, TableFooter, useTableSort, usePagination, type SortAccessors } from "@/components/table-controls";
 import {
   stockCategoryLabels,
   stockUnitLabels,
@@ -101,16 +102,27 @@ function buildPrintDocument(rows: ShoppingItem[]) {
 </html>`;
 }
 
-type SortKey = "item_name" | "quantity_to_buy" | "added_by_name";
-type SortDir = "asc" | "desc";
+type SortKey = "item_name" | "quantity_to_buy" | "unit" | "added_by_name";
+
+const columns: { key: SortKey; label: string }[] = [
+  { key: "item_name", label: "Item" },
+  { key: "quantity_to_buy", label: "Quantidade a comprar" },
+  { key: "unit", label: "Unidade" },
+  { key: "added_by_name", label: "Quem inseriu" },
+];
+
+const accessors: SortAccessors<ShoppingItem, SortKey> = {
+  item_name: (i) => i.item_name,
+  quantity_to_buy: (i) => Number(i.quantity_to_buy),
+  unit: (i) => unitLabel(i.unit),
+  added_by_name: (i) => i.added_by_name,
+};
 
 export function StockShoppingList({ items }: { items: ShoppingItem[] }) {
   const router = useRouter();
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
   const [search, setSearch] = useState("");
-  const [sortKey, setSortKey] = useState<SortKey>("item_name");
-  const [sortDir, setSortDir] = useState<SortDir>("asc");
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editQty, setEditQty] = useState("");
   // Itens recém-marcados como comprados — dá o feedback visual (verde + check)
@@ -135,37 +147,21 @@ export function StockShoppingList({ items }: { items: ShoppingItem[] }) {
     return true;
   }
 
-  function toggleSort(key: SortKey) {
-    if (key === sortKey) {
-      setSortDir((d) => (d === "asc" ? "desc" : "asc"));
-    } else {
-      setSortKey(key);
-      setSortDir("asc");
-    }
-  }
-
-  const rows = useMemo(() => {
+  const filtered = useMemo(() => {
     const term = search.trim().toLowerCase();
-    const filtered = term
-      ? items.filter(
-          (i) =>
-            i.item_name.toLowerCase().includes(term) ||
-            i.added_by_name.toLowerCase().includes(term),
-        )
-      : items;
+    if (!term) return items;
+    return items.filter(
+      (i) => i.item_name.toLowerCase().includes(term) || i.added_by_name.toLowerCase().includes(term),
+    );
+  }, [items, search]);
 
-    const factor = sortDir === "asc" ? 1 : -1;
-    return [...filtered].sort((a, b) => {
-      if (sortKey === "quantity_to_buy") {
-        return (Number(a.quantity_to_buy) - Number(b.quantity_to_buy)) * factor;
-      }
-      return a[sortKey].localeCompare(b[sortKey], "pt-BR", { sensitivity: "base" }) * factor;
-    });
-  }, [items, search, sortKey, sortDir]);
+  const { sorted: rows, sort, toggleSort } = useTableSort<ShoppingItem, SortKey>(filtered, accessors, { key: "item_name", dir: "asc" });
+  // A busca é local (estado), por isso ela mesma serve de chave de reset.
+  const { visible, total, start, page, totalPages, pageSize, setPageSize, setPage } = usePagination(rows, search);
 
-  function sortIcon(key: SortKey) {
-    if (key !== sortKey) return null;
-    return sortDir === "asc" ? <ChevronUp size={13} /> : <ChevronDown size={13} />;
+  function sortBy(key: SortKey) {
+    toggleSort(key);
+    setPage(1);
   }
 
   async function addManual(form: HTMLFormElement) {
@@ -255,36 +251,23 @@ export function StockShoppingList({ items }: { items: ShoppingItem[] }) {
         <table>
           <thead>
             <tr>
-              <th>
-                <button type="button" className="sort-th" onClick={() => toggleSort("item_name")}>
-                  Item {sortIcon("item_name")}
-                </button>
-              </th>
-              <th>
-                <button type="button" className="sort-th" onClick={() => toggleSort("quantity_to_buy")}>
-                  Quantidade a comprar {sortIcon("quantity_to_buy")}
-                </button>
-              </th>
-              <th>
-                <button type="button" className="sort-th" onClick={() => toggleSort("added_by_name")}>
-                  Quem inseriu {sortIcon("added_by_name")}
-                </button>
-              </th>
+              {columns.map((col) => (
+                <SortableTh key={col.key} column={col.key} label={col.label} sort={sort} onSort={sortBy} />
+              ))}
               <th>Ações</th>
             </tr>
           </thead>
           <tbody>
-            {rows.length === 0 && (
+            {total === 0 && (
               <tr>
-                <td colSpan={4} className="muted">
+                <td colSpan={5} className="muted">
                   {items.length === 0
                     ? "Nenhum item na lista. Produtos abaixo do mínimo entram automaticamente."
                     : "Nenhum item corresponde à pesquisa."}
                 </td>
               </tr>
             )}
-            {rows.map((it) => {
-              const unit = it.unit ? stockUnitLabels[it.unit as StockUnit] ?? it.unit : null;
+            {visible.map((it) => {
               const isEditing = editingId === it.id;
               return (
                 <tr key={it.id}>
@@ -313,7 +296,7 @@ export function StockShoppingList({ items }: { items: ShoppingItem[] }) {
                     ) : (
                       <button
                         type="button"
-                        className="sort-th"
+                        className="th-sort"
                         title="Editar quantidade"
                         onClick={() => {
                           setEditingId(it.id);
@@ -321,10 +304,10 @@ export function StockShoppingList({ items }: { items: ShoppingItem[] }) {
                         }}
                       >
                         <strong>{Number(it.quantity_to_buy).toLocaleString("pt-BR")}</strong>
-                        {unit ? ` ${unit}` : ""}
                       </button>
                     )}
                   </td>
+                  <td>{unitLabel(it.unit)}</td>
                   <td>
                     <span className="actions" style={{ gap: 6 }}>
                       {it.source === "sistema" ? <Cpu size={13} /> : <User size={13} />}
@@ -375,6 +358,12 @@ export function StockShoppingList({ items }: { items: ShoppingItem[] }) {
           </tbody>
         </table>
       </section>
+
+      <TableFooter
+        total={total} start={start} shown={visible.length}
+        page={page} totalPages={totalPages}
+        pageSize={pageSize} onPageSize={setPageSize} onPage={setPage}
+      />
     </div>
   );
 }

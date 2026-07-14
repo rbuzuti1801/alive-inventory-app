@@ -362,6 +362,41 @@ tbody tr:nth-child(even) td { background: rgba(255,253,235,.55); }
 tbody tr:hover td           { background: rgba(32,47,86,.025); }
 .highlight-row td           { background: #FFF8F0 !important; }
 
+.th-sort {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background: none;
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+  font: inherit;
+  color: inherit;
+  text-transform: inherit;
+  letter-spacing: inherit;
+}
+.th-sort:hover { color: var(--brand-gold); }
+.th-sort-arrow { display: inline-flex; min-width: 13px; }
+
+/* Coluna ativa: cabeçalho e células ganham leve destaque. */
+th.is-sorted { background: #F2F0E4; color: var(--brand); }
+th.is-sorted .th-sort { text-decoration: underline; text-underline-offset: 3px; }
+
+/* ── Rodapé da tabela ──────────────────────────────────────── */
+.table-footer {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 12px;
+  font-size: 13px;
+}
+.table-footer-right { display: flex; flex-wrap: wrap; align-items: center; gap: 16px; }
+.page-size { display: inline-flex; align-items: center; gap: 8px; color: var(--muted); }
+.page-size select { padding: 5px 8px; }
+.pager { display: inline-flex; align-items: center; gap: 10px; }
+
 /* ── SKU Badge ─────────────────────────────────────────────── */
 .sku-badge {
   display: inline-flex;
@@ -625,13 +660,6 @@ tr.row-selected { background: #F7F9FF; }
 .stock-tab-active { color: var(--brand); border-bottom-color: var(--brand-gold); }
 
 /* Botão-cabeçalho ordenável / gatilho inline (herda cor e fonte da célula) */
-.sort-th {
-  display: inline-flex; align-items: center; gap: 4px;
-  background: none; border: none; padding: 0; margin: 0;
-  font: inherit; color: inherit; cursor: pointer; text-align: left;
-}
-.sort-th:hover { color: var(--brand); }
-
 /* ── Estoque: tela completa do produto ─────────────────────── */
 .back-link {
   display: inline-flex; align-items: center; gap: 4px;
