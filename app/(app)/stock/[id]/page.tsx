@@ -50,6 +50,7 @@ export default async function StockProductDetailPage({
         "id,public_code,name,category,unit,min_quantity,notes,active,stock_levels(quantity,location_id,stock_locations(name))",
       )
       .eq("id", id)
+      .is("deleted_at", null)
       .maybeSingle(),
     supabaseAdmin.from("stock_locations").select("id,name").eq("active", true).order("name"),
   ]);

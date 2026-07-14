@@ -15,6 +15,7 @@ type SearchParams = {
   tab?: string;
   search?: string;
   category?: string;
+  status?: string;
   product_id?: string;
   movement_type?: string;
 };
@@ -51,6 +52,9 @@ async function ProductsTab({ params, canManage }: { params: SearchParams; canMan
   let query = supabaseAdmin
     .from("stock_products")
     .select("id,public_code,name,category,unit,min_quantity,label_printed,active,stock_levels(quantity)")
+    // Produtos excluídos logicamente (0008) somem de todas as listagens; o
+    // histórico de movimentações continua apontando para eles.
+    .is("deleted_at", null)
     .order("name");
 
   if (params.search) {
@@ -58,6 +62,8 @@ async function ProductsTab({ params, canManage }: { params: SearchParams; canMan
     if (search) query = query.ilike("name", `%${search}%`);
   }
   if (params.category) query = query.eq("category", params.category);
+  if (params.status === "ativos") query = query.eq("active", true);
+  if (params.status === "inativos") query = query.eq("active", false);
 
   // Localizações ativas alimentam o campo "Localização inicial" do novo produto.
   const [{ data }, { data: locations }] = await Promise.all([
@@ -76,6 +82,7 @@ async function ProductsTab({ params, canManage }: { params: SearchParams; canMan
       canManage={canManage}
       search={params.search ?? ""}
       category={params.category ?? ""}
+      status={params.status ?? ""}
     />
   );
 }
@@ -116,7 +123,7 @@ async function MovementsTab({ params }: { params: SearchParams }) {
 
   const [{ data: movements }, { data: products }] = await Promise.all([
     query,
-    supabaseAdmin.from("stock_products").select("id,name").order("name"),
+    supabaseAdmin.from("stock_products").select("id,name").is("deleted_at", null).order("name"),
   ]);
 
   return (

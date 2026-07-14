@@ -59,9 +59,10 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
   }
 }
 
-// Exclusão física — apenas admin e apenas quando NÃO há histórico de
-// movimentações. Com histórico, o produto deve ser desativado (PUT active:false)
-// para preservar a integridade do histórico.
+// Exclusão — apenas admin e apenas com o produto já desativado. A RPC decide
+// entre exclusão física (sem histórico) e lógica (com histórico, preservando as
+// movimentações para auditoria) e limpa saldos/lista de compras na mesma
+// transação. Ver migration 0008.
 export async function DELETE(_request: Request, { params }: { params: Promise<{ id: string }> }) {
   const { user, response } = await requireApiUser();
   if (response) return response;
@@ -72,23 +73,14 @@ export async function DELETE(_request: Request, { params }: { params: Promise<{ 
       return errorResponse(new Error("Apenas administradores podem excluir produtos."), 403);
     }
 
-    const { count, error: countError } = await supabaseAdmin
-      .from("stock_movements")
-      .select("id", { count: "exact", head: true })
-      .eq("product_id", id);
-    if (countError) return errorResponse(countError);
-
-    if ((count ?? 0) > 0) {
-      return errorResponse(
-        new Error("Este produto possui movimentações e não pode ser excluído. Desative-o para preservar o histórico."),
-        409,
-      );
-    }
-
-    // stock_levels tem ON DELETE CASCADE; sem movimentações, exclusão é segura.
-    const { error } = await supabaseAdmin.from("stock_products").delete().eq("id", id);
+    const { data, error } = await supabaseAdmin.rpc("delete_stock_product", {
+      p_product_id: id,
+      p_user_id: user!.id,
+    });
     if (error) return errorResponse(error);
-    return Response.json({ deleted: true });
+
+    const result = data as { mode: "permanente" | "arquivado"; movements: number };
+    return Response.json({ deleted: true, mode: result?.mode, movements: result?.movements });
   } catch (error) {
     return errorResponse(error);
   }

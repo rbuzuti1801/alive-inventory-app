@@ -70,6 +70,9 @@ export function StockProductCreateModal({ locations, onCreated }: Props) {
       const res = await fetch("/api/stock/products", {
         method: "POST",
         headers: { "content-type": "application/json" },
+        // Sem isso, uma sessão expirada seria seguida até /login, que responde
+        // 200 com HTML — e o modal trataria a falha como sucesso.
+        redirect: "manual",
         body: JSON.stringify({
           name: form.name.trim(),
           category: form.category,
@@ -81,9 +84,19 @@ export function StockProductCreateModal({ locations, onCreated }: Props) {
           initial_location_id: needsLocation ? form.initial_location_id : null,
         }),
       });
+      if (res.type === "opaqueredirect" || res.status === 0) {
+        setError("Sessão expirada. Entre novamente para criar o produto.");
+        return;
+      }
       const json = await res.json().catch(() => ({}));
       if (!res.ok) {
         setError(json.error ?? "Não foi possível criar o produto.");
+        return;
+      }
+      // Só declara sucesso com o produto de volta do servidor: se o insert ou a
+      // entrada inicial falharem, a RPC desfaz tudo e nada deve parecer criado.
+      if (!json.product?.id) {
+        setError("O servidor não confirmou a criação do produto. Tente novamente.");
         return;
       }
       onCreated({ id: json.product.id, name: json.product.name });

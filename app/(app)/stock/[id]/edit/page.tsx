@@ -19,6 +19,7 @@ export default async function EditStockProductPage({
     .from("stock_products")
     .select("id,name,category,unit,min_quantity,notes,active")
     .eq("id", id)
+    .is("deleted_at", null)
     .maybeSingle();
 
   if (!product) return <div className="alert error">Produto não encontrado.</div>;

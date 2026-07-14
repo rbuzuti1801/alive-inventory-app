@@ -35,3 +35,11 @@ export function canAdjustStock(user: SessionUser) {
 export function canManageStock(user: SessionUser) {
   return user.role === "admin";
 }
+
+// Exclusão de produto: admin E produto já desativado. A regra é imposta de fato
+// pela RPC delete_stock_product (0008); esta função existe para a interface não
+// oferecer uma ação que o servidor recusaria. Recebe o resultado de
+// canManageStock para poder rodar também no cliente, que não tem o SessionUser.
+export function canDeleteStockProduct(userManagesStock: boolean, product: { active: boolean }) {
+  return userManagesStock && !product.active;
+}
