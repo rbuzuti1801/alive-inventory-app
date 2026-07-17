@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { SortableTh, TableFooter, useTableSort, usePagination, type SortAccessors } from "@/components/table-controls";
+import { MobileSort, SortableTh, TableFooter, useTableSort, usePagination, type SortAccessors } from "@/components/table-controls";
 import {
   stockMovementLabels,
   stockMovementTypes,
@@ -103,7 +103,9 @@ export function StockMovementsList({ movements, products, productId, movementTyp
         </form>
       </section>
 
-      <section className="table-wrap">
+      <MobileSort columns={columns} sort={sort} onSort={sortBy} />
+
+      <section className="table-wrap table-cards">
         <table>
           <thead>
             <tr>
@@ -121,19 +123,19 @@ export function StockMovementsList({ movements, products, productId, movementTyp
               const unit = stockUnitLabels[(m.stock_products?.unit ?? "un") as StockUnit] ?? m.stock_products?.unit;
               return (
                 <tr key={m.id}>
-                  <td>{new Date(m.moved_at).toLocaleString("pt-BR")}</td>
-                  <td><span className={`badge ${typeBadge[m.movement_type]}`}>{stockMovementLabels[m.movement_type]}</span></td>
-                  <td>{m.stock_products?.name ?? "—"}</td>
-                  <td>
+                  <td data-label="Data">{new Date(m.moved_at).toLocaleString("pt-BR")}</td>
+                  <td data-label="Tipo"><span className={`badge ${typeBadge[m.movement_type]}`}>{stockMovementLabels[m.movement_type]}</span></td>
+                  <td data-label="Produto">{m.stock_products?.name ?? "—"}</td>
+                  <td data-label="Quantidade">
                     <strong>{Number(m.quantity).toLocaleString("pt-BR")}</strong> {unit}
                     {m.movement_type === "ajuste" && m.previous_quantity != null && (
                       <span className="muted" style={{ fontSize: 11 }}> (antes: {Number(m.previous_quantity).toLocaleString("pt-BR")})</span>
                     )}
                   </td>
-                  <td>{m.from_loc?.name ?? "—"}</td>
-                  <td>{m.to_loc?.name ?? "—"}</td>
-                  <td>{m.mover?.name ?? "—"}</td>
-                  <td className="muted">{m.reason ?? "—"}</td>
+                  <td data-label="Origem">{m.from_loc?.name ?? "—"}</td>
+                  <td data-label="Destino">{m.to_loc?.name ?? "—"}</td>
+                  <td data-label="Por">{m.mover?.name ?? "—"}</td>
+                  <td data-label="Motivo" className="muted">{m.reason ?? "—"}</td>
                 </tr>
               );
             })}

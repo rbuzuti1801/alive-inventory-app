@@ -4,7 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Eye, Pencil, Power, Printer, QrCode, Trash2 } from "lucide-react";
-import { SortableTh, TableFooter, useTableSort, usePagination, type SortAccessors } from "@/components/table-controls";
+import { MobileSort, SortableTh, TableFooter, useTableSort, usePagination, type SortAccessors } from "@/components/table-controls";
 import { StockProductCreateModal, type CreatedProduct } from "@/components/StockProductCreateModal";
 import { canDeleteStockProduct } from "@/lib/permissions";
 import {
@@ -214,7 +214,9 @@ export function StockProductsManager({ products, locations, canManage, search, c
         </div>
       </section>
 
-      <section className="table-wrap">
+      <MobileSort columns={columns} sort={sort} onSort={sortBy} />
+
+      <section className="table-wrap table-cards">
         <table>
           <thead>
             <tr>
@@ -239,7 +241,7 @@ export function StockProductsManager({ products, locations, canManage, search, c
                   <td>
                     <input type="checkbox" checked={selected.has(p.id)} onChange={() => toggle(p.id)} aria-label={`Selecionar ${p.name}`} />
                   </td>
-                  <td>
+                  <td data-label="Produto">
                     <Link href={`/stock/${p.id}`}>
                       <strong>{p.name}</strong>
                     </Link>
@@ -247,15 +249,15 @@ export function StockProductsManager({ products, locations, canManage, search, c
                       <QrCode size={11} style={{ verticalAlign: "-1px" }} /> {p.public_code}
                     </div>
                   </td>
-                  <td>{stockCategoryLabels[p.category as StockCategory] ?? p.category}</td>
-                  <td><strong>{p.total.toLocaleString("pt-BR")}</strong> {unitLabel}</td>
-                  <td>{Number(p.min_quantity).toLocaleString("pt-BR")}</td>
-                  <td>
+                  <td data-label="Categoria">{stockCategoryLabels[p.category as StockCategory] ?? p.category}</td>
+                  <td data-label="Saldo"><strong>{p.total.toLocaleString("pt-BR")}</strong> {unitLabel}</td>
+                  <td data-label="Mínimo">{Number(p.min_quantity).toLocaleString("pt-BR")}</td>
+                  <td data-label="Status">
                     <span className={`badge stock-status-${stockState}`}>{stockStatusLabels[stockState]}</span>
                     {!p.active && <span className="badge neutral" style={{ marginLeft: 6 }}>Inativo</span>}
                   </td>
-                  <td>{p.label_printed ? "Impressa" : "—"}</td>
-                  <td className="actions stock-row-actions">
+                  <td data-label="Etiqueta">{p.label_printed ? "Impressa" : "—"}</td>
+                  <td className="actions stock-row-actions" data-label="Ações">
                     <Link className="button secondary" href={`/stock/${p.id}`} title="Ver">
                       <Eye size={15} /> Ver
                     </Link>

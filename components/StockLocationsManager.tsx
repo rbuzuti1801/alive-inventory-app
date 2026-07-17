@@ -73,7 +73,7 @@ export function StockLocationsManager({
         </section>
       )}
 
-      <section className="table-wrap">
+      <section className="table-wrap table-cards">
         <table>
           <thead>
             <tr>
@@ -91,13 +91,13 @@ export function StockLocationsManager({
             )}
             {locations.map((l) => (
               <tr key={l.id} className={l.active ? "" : "muted"}>
-                <td><strong>{l.name}</strong></td>
-                <td>{l.sector_name ?? "—"}</td>
-                <td>{l.description ?? "—"}</td>
-                <td>{l.total.toLocaleString("pt-BR")}</td>
-                <td>{l.active ? "Ativa" : "Inativa"}</td>
+                <td data-label="Localização"><strong>{l.name}</strong></td>
+                <td data-label="Setor">{l.sector_name ?? "—"}</td>
+                <td data-label="Descrição">{l.description ?? "—"}</td>
+                <td data-label="Itens em estoque">{l.total.toLocaleString("pt-BR")}</td>
+                <td data-label="Status">{l.active ? "Ativa" : "Inativa"}</td>
                 {canManage && (
-                  <td className="actions">
+                  <td className="actions" data-label="Ações">
                     <button
                       className="button secondary"
                       type="button"

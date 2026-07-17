@@ -118,7 +118,7 @@ export function LabelsManager({
         </button>
       </div>
 
-      <div className="table-wrap">
+      <div className="table-wrap table-cards">
         <table>
           <thead>
             <tr>
@@ -135,20 +135,20 @@ export function LabelsManager({
           <tbody>
             {items.map((item) => (
               <tr key={item.id} className={selected.has(item.id) ? "row-selected" : ""}>
-                <td><input type="checkbox" checked={selected.has(item.id)} onChange={() => toggle(item.id)} aria-label={`Selecionar ${item.sku}`} /></td>
-                <td><span className="sku-badge">{item.sku ?? item.item_code}</span></td>
-                <td style={{ maxWidth: 240, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{item.description}</td>
-                <td>{item.sectors?.name ?? "-"}</td>
-                <td>{item.location ?? "-"}</td>
-                <td>{item.responsible_name ?? "-"}</td>
-                <td>
+                <td data-label="Selecionar"><input type="checkbox" checked={selected.has(item.id)} onChange={() => toggle(item.id)} aria-label={`Selecionar ${item.sku}`} /></td>
+                <td data-label="SKU"><span className="sku-badge">{item.sku ?? item.item_code}</span></td>
+                <td data-label="Descrição" style={{ maxWidth: 240, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{item.description}</td>
+                <td data-label="Setor">{item.sectors?.name ?? "-"}</td>
+                <td data-label="Localização">{item.location ?? "-"}</td>
+                <td data-label="Responsável">{item.responsible_name ?? "-"}</td>
+                <td data-label="Etiqueta">
                   {item.label_printed ? (
                     <span className="badge novo">Impressa · {labelLabels[item.label_type as LabelType] ?? item.label_type}</span>
                   ) : (
                     <span className="badge regular">Pendente</span>
                   )}
                 </td>
-                <td className="actions">
+                <td className="actions" data-label="Ações">
                   <a className="button secondary" href={`/labels/print?model=${labelTypes.includes(item.label_type as LabelType) ? item.label_type : "dk22205"}&ids=${item.id}`} target="_blank" rel="noopener">
                     <Printer size={14} /> Imprimir
                   </a>
