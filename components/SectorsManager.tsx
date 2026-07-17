@@ -12,10 +12,10 @@ function EditableSectorRow({ sector, onSave }: { sector: Sector; onSave: (payloa
 
   return (
     <tr key={sector.id}>
-      <td><input value={name} onChange={(e) => setName(e.target.value)} /></td>
-      <td><input value={description} onChange={(e) => setDescription(e.target.value)} /></td>
-      <td>{sector.active ? "Ativo" : "Inativo"}</td>
-      <td className="actions">
+      <td data-label="Setor"><input value={name} onChange={(e) => setName(e.target.value)} /></td>
+      <td data-label="Descrição"><input value={description} onChange={(e) => setDescription(e.target.value)} /></td>
+      <td data-label="Status">{sector.active ? "Ativo" : "Inativo"}</td>
+      <td className="actions" data-label="Ações">
         <button className="button secondary" type="button" onClick={() => onSave({ id: sector.id, name, description: description || null, active: sector.active })}>Salvar</button>
         <button className="button secondary" type="button" onClick={() => onSave({ id: sector.id, name: sector.name, description: sector.description, active: !sector.active })}>{sector.active ? "Desativar" : "Ativar"}</button>
       </td>
@@ -51,7 +51,7 @@ export function SectorsManager({ sectors, subcategories }: { sectors: Sector[]; 
         </form>
       </section>
 
-      <section className="table-wrap">
+      <section className="table-wrap table-cards">
         <table>
           <thead><tr><th>Setor</th><th>Descrição</th><th>Status</th><th>Ações</th></tr></thead>
           <tbody>
@@ -72,16 +72,16 @@ export function SectorsManager({ sectors, subcategories }: { sectors: Sector[]; 
         </form>
       </section>
 
-      <section className="table-wrap">
+      <section className="table-wrap table-cards">
         <table>
           <thead><tr><th>Subcategoria</th><th>Setor</th><th>Status</th><th>Ações</th></tr></thead>
           <tbody>
             {subcategories.map((sub) => (
               <tr key={sub.id}>
-                <td>{sub.name}</td>
-                <td>{sectors.find((s) => s.id === sub.sector_id)?.name ?? "-"}</td>
-                <td>{sub.active ? "Ativa" : "Inativa"}</td>
-                <td><button className="button secondary" type="button" onClick={() => save({ kind: "subcategory", id: sub.id, sector_id: sub.sector_id, name: sub.name, description: sub.description, active: !sub.active }, "PUT")}>{sub.active ? "Desativar" : "Ativar"}</button></td>
+                <td data-label="Subcategoria">{sub.name}</td>
+                <td data-label="Setor">{sectors.find((s) => s.id === sub.sector_id)?.name ?? "-"}</td>
+                <td data-label="Status">{sub.active ? "Ativa" : "Inativa"}</td>
+                <td data-label="Ações"><button className="button secondary" type="button" onClick={() => save({ kind: "subcategory", id: sub.id, sector_id: sub.sector_id, name: sub.name, description: sub.description, active: !sub.active }, "PUT")}>{sub.active ? "Desativar" : "Ativar"}</button></td>
               </tr>
             ))}
           </tbody>

@@ -3,7 +3,7 @@
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Check, Cpu, FileText, Plus, Printer, Trash2, User } from "lucide-react";
-import { SortableTh, TableFooter, useTableSort, usePagination, type SortAccessors } from "@/components/table-controls";
+import { MobileSort, SortableTh, TableFooter, useTableSort, usePagination, type SortAccessors } from "@/components/table-controls";
 import {
   stockCategoryLabels,
   stockUnitLabels,
@@ -247,7 +247,9 @@ export function StockShoppingList({ items }: { items: ShoppingItem[] }) {
         </div>
       </section>
 
-      <section className="table-wrap">
+      <MobileSort columns={columns} sort={sort} onSort={sortBy} />
+
+      <section className="table-wrap table-cards">
         <table>
           <thead>
             <tr>
@@ -271,10 +273,10 @@ export function StockShoppingList({ items }: { items: ShoppingItem[] }) {
               const isEditing = editingId === it.id;
               return (
                 <tr key={it.id}>
-                  <td>
+                  <td data-label="Item">
                     <strong>{it.item_name}</strong>
                   </td>
-                  <td>
+                  <td data-label="Qtd. a comprar">
                     {isEditing ? (
                       <span className="actions">
                         <input
@@ -307,14 +309,14 @@ export function StockShoppingList({ items }: { items: ShoppingItem[] }) {
                       </button>
                     )}
                   </td>
-                  <td>{unitLabel(it.unit)}</td>
-                  <td>
+                  <td data-label="Unidade">{unitLabel(it.unit)}</td>
+                  <td data-label="Quem inseriu">
                     <span className="actions" style={{ gap: 6 }}>
                       {it.source === "sistema" ? <Cpu size={13} /> : <User size={13} />}
                       {it.added_by_name}
                     </span>
                   </td>
-                  <td className="actions stock-row-actions">
+                  <td className="actions stock-row-actions" data-label="Ações">
                     {(() => {
                       const isPurchased = purchased.has(it.id);
                       return (

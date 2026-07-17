@@ -53,14 +53,14 @@ export function UsersManager({ users, sectors }: { users: User[]; sectors: Secto
           {editing && <button className="button secondary" type="button" onClick={() => setEditing(null)}>Cancelar edição</button>}
         </div>
       </form>
-      <section className="table-wrap">
+      <section className="table-wrap table-cards">
         <table>
           <thead><tr><th>Nome</th><th>Usuário</th><th>Role</th><th>Setor</th><th>Status</th><th>Ações</th></tr></thead>
           <tbody>
             {users.map((user) => (
               <tr key={user.id}>
-                <td>{user.name}</td><td>{user.username}</td><td>{roleLabels[user.role as keyof typeof roleLabels]}</td><td>{relatedName(user.sectors) ?? "-"}</td><td>{user.active ? "Ativo" : "Inativo"}</td>
-                <td><button className="button secondary" type="button" onClick={() => setEditing(user)}>Editar</button></td>
+                <td data-label="Nome">{user.name}</td><td data-label="Usuário">{user.username}</td><td data-label="Role">{roleLabels[user.role as keyof typeof roleLabels]}</td><td data-label="Setor">{relatedName(user.sectors) ?? "-"}</td><td data-label="Status">{user.active ? "Ativo" : "Inativo"}</td>
+                <td data-label="Ações"><button className="button secondary" type="button" onClick={() => setEditing(user)}>Editar</button></td>
               </tr>
             ))}
           </tbody>

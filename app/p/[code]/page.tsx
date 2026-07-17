@@ -5,9 +5,13 @@ import { getSessionUser } from "@/lib/auth";
 import { normalizePublicCode } from "@/lib/qr";
 import { supabaseAdmin } from "@/lib/supabase";
 import {
+  conservationLabels,
+  statusLabels,
   stockStatus,
   stockStatusLabels,
   stockUnitLabels,
+  type ConservationStatus,
+  type ItemStatus,
   type StockUnit,
 } from "@/lib/constants";
 import { QuickWithdrawModal } from "@/components/QuickWithdrawModal";
@@ -56,6 +60,12 @@ export default async function PublicCodePage({
   }
 
   const code = normalizePublicCode(rawCode);
+
+  // Bem patrimonial (Inventário): página apenas consultiva sem login.
+  if (code.startsWith("B-")) {
+    return <PatrimonyView code={code} />;
+  }
+
   if (!code.startsWith("E-")) {
     return <NotRecognized message="Este código ainda não possui um módulo associado." />;
   }
@@ -141,6 +151,83 @@ export default async function PublicCodePage({
             .map((l) => ({ id: l.location_id, name: l.location_name, quantity: l.quantity }))}
           loginHref={`/login?next=/p/${product.public_code}`}
         />
+      </div>
+    </main>
+  );
+}
+
+// ── Consulta patrimonial (/p/B-…) ──────────────────────────────────────────
+// Sem login: somente leitura, sem NENHUMA ação de movimentação (o patrimônio,
+// diferente do Estoque, não permite retirada/entrada/saída sem autenticação).
+// Logado: redireciona para a tela completa do item (ações por permissão).
+async function PatrimonyView({ code }: { code: string }) {
+  const { data: item } = await supabaseAdmin
+    .from("inventory_items")
+    .select(
+      "id,public_code,sku,item_code,description,brand,model,conservation_status,location,responsible_name,status,sectors(name),subcategories(name)",
+    )
+    .eq("public_code", code)
+    .maybeSingle();
+
+  if (!item) {
+    return <NotRecognized message="Bem patrimonial não encontrado para este QR Code." />;
+  }
+
+  const user = await getSessionUser();
+  if (user) {
+    // Usuário autenticado abre a tela completa (Editar, Etiqueta, Voltar…).
+    redirect(`/inventory/${item.id}`);
+  }
+
+  const sku = item.sku ?? item.item_code;
+  const sector = (item.sectors as { name?: string } | null)?.name;
+  const subcategory = (item.subcategories as { name?: string } | null)?.name;
+  const conservation = conservationLabels[item.conservation_status as ConservationStatus];
+  const status = statusLabels[item.status as ItemStatus];
+
+  const fields: Array<[string, string | null | undefined]> = [
+    ["Setor", sector],
+    ["Subcategoria", subcategory],
+    ["Marca", item.brand],
+    ["Modelo", item.model],
+    ["Estado de conservação", conservation],
+    ["Localização", item.location],
+    ["Responsável", item.responsible_name],
+    ["Status", status],
+  ];
+
+  return (
+    <main className="public-page">
+      <div className="public-card">
+        <div className="public-brand">
+          <span className="alive">ALIVE</span> <span className="church">CHURCH</span>
+          <span className="system">Patrimônio</span>
+        </div>
+
+        <h1 className="public-product-name">{item.description}</h1>
+        <p className="muted" style={{ margin: 0, fontFamily: "monospace" }}>{sku}</p>
+
+        <div className="public-locations">
+          {fields
+            .filter(([, value]) => value != null && value !== "")
+            .map(([label, value]) => (
+              <div key={label} className="public-loc-row">
+                <span>{label}</span>
+                <strong style={{ textAlign: "right" }}>{value}</strong>
+              </div>
+            ))}
+        </div>
+
+        <p className="muted" style={{ fontSize: 12, textAlign: "center", margin: 0 }}>
+          Consulta pública do patrimônio · somente leitura
+        </p>
+
+        <Link
+          className="button secondary public-login-cta"
+          href={`/login?next=/p/${item.public_code}`}
+        >
+          Entrar no sistema
+        </Link>
       </div>
     </main>
   );

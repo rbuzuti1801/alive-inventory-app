@@ -84,6 +84,43 @@ export function SortableTh<K extends string>({
   );
 }
 
+/** Controle de ordenação para o mobile (card view), onde o cabeçalho da tabela
+ *  fica oculto. Só aparece em telas pequenas (CSS .mobile-sort). Reaproveita o
+ *  mesmo estado/toggle do useTableSort das listagens. */
+export function MobileSort<K extends string>({
+  columns, sort, onSort,
+}: {
+  columns: { key: K; label: string }[];
+  sort: SortState<K>;
+  onSort: (key: K) => void;
+}) {
+  const activeKey = sort?.key ?? columns[0]?.key;
+  const dir = sort?.dir ?? "asc";
+  return (
+    <div className="mobile-sort">
+      <label>
+        Ordenar por
+        <select
+          value={activeKey}
+          onChange={(e) => onSort(e.target.value as K)}
+        >
+          {columns.map((c) => (
+            <option key={c.key} value={c.key}>{c.label}</option>
+          ))}
+        </select>
+      </label>
+      <button
+        className="button secondary"
+        type="button"
+        onClick={() => onSort(activeKey)}
+        aria-label={dir === "asc" ? "Ordem crescente — tocar para inverter" : "Ordem decrescente — tocar para inverter"}
+      >
+        {dir === "asc" ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+      </button>
+    </div>
+  );
+}
+
 /** Rodapé: "Exibindo X–Y de Z itens" + itens por página + Anterior/Próxima. */
 export function TableFooter({
   total, start, shown, page, totalPages, pageSize, onPageSize, onPage, noun = "itens", nounSingular = "item",

@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
 import { Badge } from "@/components/Badge";
-import { SortableTh, TableFooter, useTableSort, usePagination, type SortAccessors } from "@/components/table-controls";
+import { MobileSort, SortableTh, TableFooter, useTableSort, usePagination, type SortAccessors } from "@/components/table-controls";
 import { conservationLabels, conservationStatuses, itemStatuses, statusLabels } from "@/lib/constants";
 
 type Sector      = { id: string; name: string };
@@ -106,7 +106,9 @@ export function InventoryTable({
         {canCreate && <Link className="button gold" href="/inventory/new">+ Novo item</Link>}
       </form>
 
-      <div className="table-wrap">
+      <MobileSort columns={columns} sort={sort} onSort={sortBy} />
+
+      <div className="table-wrap table-cards">
         <table>
           <thead>
             <tr>
@@ -119,17 +121,17 @@ export function InventoryTable({
           <tbody>
             {visible.map((item) => (
               <tr key={item.id} className={item.conservation_status === "danificado" || item.conservation_status === "em_manutencao" ? "highlight-row" : ""}>
-                <td><span className="sku-badge">{item.sku ?? item.item_code}</span></td>
-                <td style={{ maxWidth: 220, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{item.description}</td>
-                <td>{item.sectors?.name ?? "-"}</td>
-                <td>{item.subcategories?.name ?? "-"}</td>
-                <td style={{ color: "var(--muted)", fontSize: 13 }}>{[item.brand, item.model].filter(Boolean).join(" / ") || "-"}</td>
-                <td style={{ fontWeight: 600 }}>{item.quantity}</td>
-                <td><Badge kind="conservation" value={item.conservation_status} /></td>
-                <td>{item.location}</td>
-                <td>{item.responsible_name ?? "-"}</td>
-                <td><Badge kind="status" value={item.status} /></td>
-                <td className="actions">
+                <td data-label="SKU"><span className="sku-badge">{item.sku ?? item.item_code}</span></td>
+                <td data-label="Descrição" style={{ maxWidth: 220, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{item.description}</td>
+                <td data-label="Setor">{item.sectors?.name ?? "-"}</td>
+                <td data-label="Subcategoria">{item.subcategories?.name ?? "-"}</td>
+                <td data-label="Marca / Modelo" style={{ color: "var(--muted)", fontSize: 13 }}>{[item.brand, item.model].filter(Boolean).join(" / ") || "-"}</td>
+                <td data-label="Qtd." style={{ fontWeight: 600 }}>{item.quantity}</td>
+                <td data-label="Estado"><Badge kind="conservation" value={item.conservation_status} /></td>
+                <td data-label="Localização">{item.location}</td>
+                <td data-label="Responsável">{item.responsible_name ?? "-"}</td>
+                <td data-label="Status"><Badge kind="status" value={item.status} /></td>
+                <td className="actions" data-label="Ações">
                   <Link className="button secondary" href={`/inventory/${item.id}`}>Ver</Link>
                   <Link className="button secondary" href={`/inventory/${item.id}/edit`}>Editar</Link>
                   {canDelete && (

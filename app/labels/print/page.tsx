@@ -13,7 +13,7 @@ export default async function LabelPrintPage({
   await requireUser();
   const { ids, model: modelParam } = await searchParams;
 
-  const model: LabelType = labelTypes.includes(modelParam as LabelType) ? (modelParam as LabelType) : "compacta";
+  const model: LabelType = labelTypes.includes(modelParam as LabelType) ? (modelParam as LabelType) : "dk22205";
   const idList = (ids ?? "")
     .split(",")
     .map((s) => s.trim())
@@ -24,7 +24,7 @@ export default async function LabelPrintPage({
   if (idList.length > 0) {
     const { data } = await supabaseAdmin
       .from("inventory_items")
-      .select("id,sku,item_code,description,qr_code_data,sectors(name),subcategories(name)")
+      .select("id,public_code,sku,item_code,description,sectors(name),subcategories(name)")
       .in("id", idList);
     // Preserva a ordem de seleção.
     const byId = new Map((data ?? []).map((d) => [d.id, d]));

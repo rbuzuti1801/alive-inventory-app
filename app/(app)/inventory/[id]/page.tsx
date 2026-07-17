@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { ArrowLeft } from "lucide-react";
 import { Badge } from "@/components/Badge";
 import { QrCode } from "@/components/QrCode";
 import { LabelPrintModal } from "@/components/LabelPrintModal";
@@ -6,7 +7,7 @@ import { requireUser } from "@/lib/auth";
 import { canEditInventory } from "@/lib/permissions";
 import { supabaseAdmin } from "@/lib/supabase";
 import { conservationLabels, statusLabels } from "@/lib/constants";
-import { qrPayloadString } from "@/lib/qr";
+import { inventoryQrValue } from "@/lib/qr";
 
 function valueText(value: unknown) {
   if (value == null || value === "") return "-";
@@ -25,7 +26,7 @@ export default async function InventoryDetailPage({ params }: { params: Promise<
   if (!item) return <div className="alert error">Item não encontrado.</div>;
 
   const sku = item.sku ?? item.item_code;
-  const qrValue = item.qr_code_data ? JSON.stringify(item.qr_code_data) : qrPayloadString(item);
+  const qrValue = inventoryQrValue(item);
   const lastScan = item.last_scan_at
     ? new Date(item.last_scan_at).toLocaleString("pt-BR")
     : "Nunca escaneado";
@@ -53,7 +54,10 @@ export default async function InventoryDetailPage({ params }: { params: Promise<
     <>
       <div className="topbar">
         <div>
-          <h1 style={{ fontFamily: "monospace", letterSpacing: "0.04em" }}>{sku}</h1>
+          <Link href="/inventory" className="back-link">
+            <ArrowLeft size={16} /> Voltar
+          </Link>
+          <h1 style={{ fontFamily: "monospace", letterSpacing: "0.04em", marginTop: 6 }}>{sku}</h1>
           <p className="muted">{item.description}</p>
         </div>
         <div className="actions">
