@@ -580,6 +580,9 @@ tr.row-selected { background: #F7F9FF; }
 .label-print-root { padding: 16px; background: #f4f4f5; min-height: 100vh; }
 .label-print-toolbar { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; max-width: 900px; margin: 0 auto 16px; padding: 12px 16px; background: #fff; border-radius: 10px; box-shadow: var(--shadow-sm); }
 .label-sheet { display: flex; flex-wrap: wrap; gap: 3mm; max-width: 900px; margin: 0 auto; padding: 8mm; background: #fff; border-radius: 8px; }
+.label-real-size { width: fit-content; margin: 0 auto 10px; padding: 8px 12px; background: #fff; border-radius: 8px; font-size: 13px; color: var(--muted); }
+.label-option { display: flex; align-items: center; gap: 10px; }
+.label-option-preview { margin-left: auto; border: 1px solid var(--brand); background: repeating-linear-gradient(45deg, #fff, #fff 4px, #f6f6f6 4px, #f6f6f6 8px); border-radius: 2px; }
 
 @media (max-width: 900px) {
   .scan-layout, .audit-layout, .detail-grid { grid-template-columns: 1fr; }
@@ -591,8 +594,9 @@ tr.row-selected { background: #F7F9FF; }
   .sidebar, .topbar .actions { display: none !important; }
   body { background: #fff; }
   .label-print-root { padding: 0; background: #fff; }
-  .label-sheet { box-shadow: none; gap: 2mm; padding: 0; max-width: none; }
-  @page { margin: 8mm; }
+  .label-sheet { display: block; box-shadow: none; padding: 0; max-width: none; }
+  .label { margin: 0 !important; border: 0 !important; border-radius: 0 !important; break-after: page; page-break-after: always; }
+  .label:last-child { break-after: auto; page-break-after: auto; }
 }
 
 /* ── Estoque: página pública do produto (/p/{code}) ─────────── */

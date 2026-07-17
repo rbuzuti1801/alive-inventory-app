@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Printer, Tag } from "lucide-react";
 import { itemStatuses, labelLabels, labelTypes, statusLabels, type LabelType } from "@/lib/constants";
 
@@ -35,8 +35,12 @@ export function LabelsManager({
   const router = useRouter();
   const searchParams = useSearchParams();
   const [selected, setSelected] = useState<Set<string>>(new Set());
-  const [model, setModel] = useState<LabelType>("compacta");
+  const [model, setModel] = useState<LabelType>("dk22205");
   const [marking, setMarking] = useState(false);
+  useEffect(() => {
+    const saved = window.localStorage.getItem("brother-label-model") as LabelType | null;
+    if (saved && labelTypes.includes(saved)) setModel(saved);
+  }, []);
 
   const allSelected = items.length > 0 && selected.size === items.length;
 
@@ -65,6 +69,7 @@ export function LabelsManager({
 
   function printSelected() {
     if (selectedIds.length === 0) return;
+    window.localStorage.setItem("brother-label-model", model);
     window.open(`/labels/print?model=${model}&ids=${selectedIds.join(",")}`, "_blank", "noopener");
   }
 
@@ -101,7 +106,7 @@ export function LabelsManager({
         </div>
         <div className="field" style={{ minWidth: 160 }}>
           <label>Modelo</label>
-          <select value={model} onChange={(e) => setModel(e.target.value as LabelType)}>
+          <select value={model} onChange={(e) => { const next = e.target.value as LabelType; setModel(next); window.localStorage.setItem("brother-label-model", next); }}>
             {labelTypes.map((t) => <option key={t} value={t}>{labelLabels[t]}</option>)}
           </select>
         </div>
@@ -144,7 +149,7 @@ export function LabelsManager({
                   )}
                 </td>
                 <td className="actions">
-                  <a className="button secondary" href={`/labels/print?model=${item.label_type || "compacta"}&ids=${item.id}`} target="_blank" rel="noopener">
+                  <a className="button secondary" href={`/labels/print?model=${labelTypes.includes(item.label_type as LabelType) ? item.label_type : "dk22205"}&ids=${item.id}`} target="_blank" rel="noopener">
                     <Printer size={14} /> Imprimir
                   </a>
                   <Link className="button secondary" href={`/inventory/${item.id}`}>Ver</Link>

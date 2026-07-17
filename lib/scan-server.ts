@@ -9,14 +9,32 @@ const ITEM_SELECT =
  * Aceita o JSON oficial { id, sku, name }, um UUID cru ou um SKU/item_code.
  * Retorna o item (com setor/subcategoria) ou null se não encontrado.
  */
-export async function resolveScannedItem(input: { raw?: string; id?: string; sku?: string }) {
+export async function resolveScannedItem(input: { raw?: string; id?: string; sku?: string; code?: string }) {
   let id = input.id;
   let sku = input.sku;
+  let code = input.code;
 
-  if (!id && !sku && input.raw) {
-    const parsed = parseScan(input.raw);
-    id = parsed?.id;
-    sku = parsed?.sku;
+  if (!id && !sku && !code && input.raw) {
+    // Reconhece a URL pública patrimonial (/p/B-…) antes do JSON legado.
+    const target = parseScanTarget(input.raw);
+    if (target?.kind === "inventory_item") {
+      id = target.id;
+      sku = target.sku;
+      code = target.code;
+    } else {
+      const parsed = parseScan(input.raw);
+      id = parsed?.id;
+      sku = parsed?.sku;
+    }
+  }
+
+  if (code) {
+    const { data } = await supabaseAdmin
+      .from("inventory_items")
+      .select(ITEM_SELECT)
+      .eq("public_code", code)
+      .maybeSingle();
+    if (data) return data;
   }
 
   if (id) {
@@ -68,6 +86,6 @@ export async function resolveScanTarget(raw: string): Promise<
     return product ? { kind: "stock_product", product } : null;
   }
 
-  const item = await resolveScannedItem({ id: target.id, sku: target.sku });
+  const item = await resolveScannedItem({ id: target.id, sku: target.sku, code: target.code });
   return item ? { kind: "inventory_item", item } : null;
 }

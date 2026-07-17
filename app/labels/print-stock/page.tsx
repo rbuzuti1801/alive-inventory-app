@@ -1,6 +1,7 @@
 import { requireUser } from "@/lib/auth";
 import { supabaseAdmin } from "@/lib/supabase";
 import { StockLabelSheet } from "@/components/StockLabelSheet";
+import { labelTypes, type LabelType } from "@/lib/constants";
 
 export const dynamic = "force-dynamic";
 
@@ -9,10 +10,11 @@ export const dynamic = "force-dynamic";
 export default async function PrintStockLabelsPage({
   searchParams,
 }: {
-  searchParams: Promise<{ ids?: string }>;
+  searchParams: Promise<{ ids?: string; model?: string }>;
 }) {
   await requireUser();
-  const { ids } = await searchParams;
+  const { ids, model: modelParam } = await searchParams;
+  const model: LabelType = labelTypes.includes(modelParam as LabelType) ? (modelParam as LabelType) : "dk22205";
 
   const idList = (ids ?? "")
     .split(",")
@@ -31,5 +33,5 @@ export default async function PrintStockLabelsPage({
   const byId = new Map((data ?? []).map((p) => [p.id, p]));
   const products = idList.map((id) => byId.get(id)).filter((p): p is NonNullable<typeof p> => Boolean(p));
 
-  return <StockLabelSheet products={products} />;
+  return <StockLabelSheet products={products} model={model} />;
 }

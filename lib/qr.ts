@@ -69,7 +69,7 @@ export function skuTail(sku: string, n = 5): string {
 
 export type ScanTarget =
   | { kind: "stock_product"; code: string }
-  | { kind: "inventory_item"; id?: string; sku?: string };
+  | { kind: "inventory_item"; id?: string; sku?: string; code?: string };
 
 const publicCodeRe = /^[A-Za-z]-[0-9a-f]{6,32}$/i;
 
@@ -82,6 +82,22 @@ export function normalizePublicCode(code: string): string {
 export function publicUrl(code: string): string {
   const base = (process.env.NEXT_PUBLIC_APP_URL ?? "").replace(/\/+$/, "");
   return `${base}/p/${code}`;
+}
+
+/**
+ * Valor do QR Code patrimonial. Agora é a URL pública (/p/{public_code}) — a
+ * câmera nativa abre a consulta do item. Mantém o JSON legado {id,sku,name}
+ * como fallback para itens sem public_code (não deveriam existir após 0010).
+ */
+export function inventoryQrValue(item: {
+  public_code?: string | null;
+  id: string;
+  sku?: string | null;
+  item_code?: string | null;
+  description?: string | null;
+}): string {
+  if (item.public_code) return publicUrl(item.public_code);
+  return qrPayloadString(item);
 }
 
 /**
@@ -98,6 +114,7 @@ export function parseScanTarget(raw: string): ScanTarget | null {
   if (code) {
     const normalized = normalizePublicCode(code);
     if (normalized.startsWith("E-")) return { kind: "stock_product", code: normalized };
+    if (normalized.startsWith("B-")) return { kind: "inventory_item", code: normalized };
     return null; // prefixo reservado: ainda não há módulo que o resolva
   }
 
