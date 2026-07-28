@@ -1,4 +1,5 @@
 import { requireApiUser } from "@/lib/auth";
+import { acquisitionOriginLabels, type AcquisitionOrigin } from "@/lib/constants";
 import { supabaseAdmin } from "@/lib/supabase";
 
 function csvCell(value: unknown) {
@@ -30,6 +31,8 @@ export async function GET(request: Request) {
     "quantidade",
     "estado",
     "localizacao",
+    "origem",
+    "origem_detalhe",
     "valor_aquisicao",
     "responsavel",
     "status",
@@ -45,6 +48,8 @@ export async function GET(request: Request) {
     item.quantity,
     item.conservation_status,
     item.location,
+    acquisitionOriginLabels[item.acquisition_origin as AcquisitionOrigin] ?? "",
+    item.acquisition_origin_detail,
     item.acquisition_value,
     item.responsible_name,
     item.status,

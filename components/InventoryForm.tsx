@@ -3,7 +3,14 @@
 import { Lock } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useMemo, useState } from "react";
-import { conservationLabels, conservationStatuses, itemStatuses, statusLabels } from "@/lib/constants";
+import {
+  acquisitionOriginLabels,
+  acquisitionOrigins,
+  conservationLabels,
+  conservationStatuses,
+  itemStatuses,
+  statusLabels,
+} from "@/lib/constants";
 
 type Sector      = { id: string; name: string; code: string | null };
 type Subcategory = { id: string; sector_id: string; name: string; code: string | null };
@@ -30,6 +37,7 @@ export function InventoryForm({
   const [loading, setLoading]       = useState(false);
   const [sectorId, setSectorId]     = useState(String(item?.sector_id ?? userSectorId ?? ""));
   const [subcategoryId, setSubcategoryId] = useState(String(item?.subcategory_id ?? ""));
+  const [origin, setOrigin]         = useState(String(item?.acquisition_origin ?? ""));
 
   const availableSectors = userRole === "responsavel"
     ? sectors.filter((s) => s.id === userSectorId)
@@ -110,6 +118,26 @@ export function InventoryForm({
       </div>
 
       <div className="field"><label>Localização</label><input name="location" defaultValue={String(item?.location ?? "")} required /></div>
+      <div className="field">
+        <label>Origem (como foi adquirido)</label>
+        <select name="acquisition_origin" value={origin} onChange={(e) => setOrigin(e.target.value)}>
+          <option value="">Não informado</option>
+          {acquisitionOrigins.map((o) => <option key={o} value={o}>{acquisitionOriginLabels[o]}</option>)}
+        </select>
+      </div>
+
+      {origin === "outros" && (
+        <div className="field">
+          <label>Qual a origem</label>
+          <input
+            name="acquisition_origin_detail"
+            defaultValue={String(item?.acquisition_origin_detail ?? "")}
+            placeholder="Ex.: permuta, transferência de outra unidade"
+            maxLength={200}
+          />
+        </div>
+      )}
+
       <div className="field"><label>Data de aquisição</label><input name="acquisition_date" type="date" defaultValue={String(item?.acquisition_date ?? "")} /></div>
       <div className="field"><label>Valor de aquisição (R$)</label><input name="acquisition_value" type="number" min="0" step="0.01" defaultValue={String(item?.acquisition_value ?? "")} /></div>
       <div className="field"><label>Responsável</label><input name="responsible_name" defaultValue={String(item?.responsible_name ?? "")} /></div>

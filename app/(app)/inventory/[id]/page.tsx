@@ -6,12 +6,19 @@ import { LabelPrintModal } from "@/components/LabelPrintModal";
 import { requireUser } from "@/lib/auth";
 import { canEditInventory } from "@/lib/permissions";
 import { supabaseAdmin } from "@/lib/supabase";
-import { conservationLabels, statusLabels } from "@/lib/constants";
+import { acquisitionOriginLabels, conservationLabels, statusLabels, type AcquisitionOrigin } from "@/lib/constants";
 import { inventoryQrValue } from "@/lib/qr";
 
 function valueText(value: unknown) {
   if (value == null || value === "") return "-";
   return String(value);
+}
+
+// "Outros" sozinho não informa nada: mostramos o detalhe quando existe.
+function originText(origin: unknown, detail: unknown) {
+  const label = acquisitionOriginLabels[origin as AcquisitionOrigin];
+  if (!label) return null;
+  return detail ? `${label} — ${detail}` : label;
 }
 
 export default async function InventoryDetailPage({ params }: { params: Promise<{ id: string }> }) {
@@ -41,6 +48,7 @@ export default async function InventoryDetailPage({ params }: { params: Promise<
     ["Quantidade", item.quantity],
     ["Estado", conservationLabels[item.conservation_status as keyof typeof conservationLabels]],
     ["Localização", item.location],
+    ["Origem", originText(item.acquisition_origin, item.acquisition_origin_detail)],
     ["Data de aquisição", item.acquisition_date],
     ["Valor de aquisição", item.acquisition_value ? Number(item.acquisition_value).toLocaleString("pt-BR", { style: "currency", currency: "BRL" }) : null],
     ["Responsável", item.responsible_name],

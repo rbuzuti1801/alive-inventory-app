@@ -1,10 +1,19 @@
 export const conservationStatuses = ["novo", "bom", "regular", "danificado", "em_manutencao"] as const;
 export const itemStatuses = ["ativo", "inativo", "descartado"] as const;
 export const roles = ["admin", "responsavel", "visualizador"] as const;
+// Origem da aquisição: como o bem entrou no patrimônio.
+export const acquisitionOrigins = ["compra", "doacao", "outros"] as const;
 
 export type ConservationStatus = (typeof conservationStatuses)[number];
 export type ItemStatus = (typeof itemStatuses)[number];
 export type Role = (typeof roles)[number];
+export type AcquisitionOrigin = (typeof acquisitionOrigins)[number];
+
+export const acquisitionOriginLabels: Record<AcquisitionOrigin, string> = {
+  compra: "Compra",
+  doacao: "Doação",
+  outros: "Outros",
+};
 
 export const conservationLabels: Record<ConservationStatus, string> = {
   novo: "Novo",

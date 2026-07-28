@@ -1,5 +1,6 @@
 import { z } from "zod";
 import {
+  acquisitionOrigins,
   conservationStatuses,
   itemStatuses,
   labelTypes,
@@ -32,10 +33,21 @@ export const inventorySchema = z.object({
     (value) => (value === "" || value == null ? null : Number(value)),
     z.number().min(0).max(99999999).nullable().optional(),
   ),
+  acquisition_origin: z.preprocess(
+    (value) => (value === "" || value == null ? null : value),
+    z.enum(acquisitionOrigins).nullable().optional(),
+  ),
+  acquisition_origin_detail: nullableText,
   responsible_name: nullableText,
   observations: nullableText,
   status: z.enum(itemStatuses),
-});
+})
+  // O detalhe só faz sentido em "outros": em compra/doação ele é descartado
+  // para não deixar texto órfão de uma escolha anterior.
+  .transform((v) => ({
+    ...v,
+    acquisition_origin_detail: v.acquisition_origin === "outros" ? v.acquisition_origin_detail ?? null : null,
+  }));
 
 export const sectorSchema = z.object({
   name: z.string().trim().min(1, "Nome obrigatório.").max(100),

@@ -5,11 +5,13 @@ import { getSessionUser } from "@/lib/auth";
 import { normalizePublicCode } from "@/lib/qr";
 import { supabaseAdmin } from "@/lib/supabase";
 import {
+  acquisitionOriginLabels,
   conservationLabels,
   statusLabels,
   stockStatus,
   stockStatusLabels,
   stockUnitLabels,
+  type AcquisitionOrigin,
   type ConservationStatus,
   type ItemStatus,
   type StockUnit,
@@ -164,7 +166,7 @@ async function PatrimonyView({ code }: { code: string }) {
   const { data: item } = await supabaseAdmin
     .from("inventory_items")
     .select(
-      "id,public_code,sku,item_code,description,brand,model,conservation_status,location,responsible_name,status,sectors(name),subcategories(name)",
+      "id,public_code,sku,item_code,description,brand,model,conservation_status,location,responsible_name,status,acquisition_origin,acquisition_origin_detail,sectors(name),subcategories(name)",
     )
     .eq("public_code", code)
     .maybeSingle();
@@ -184,6 +186,10 @@ async function PatrimonyView({ code }: { code: string }) {
   const subcategory = (item.subcategories as { name?: string } | null)?.name;
   const conservation = conservationLabels[item.conservation_status as ConservationStatus];
   const status = statusLabels[item.status as ItemStatus];
+  const originLabel = acquisitionOriginLabels[item.acquisition_origin as AcquisitionOrigin];
+  const origin = originLabel && item.acquisition_origin_detail
+    ? `${originLabel} — ${item.acquisition_origin_detail}`
+    : originLabel;
 
   const fields: Array<[string, string | null | undefined]> = [
     ["Setor", sector],
@@ -191,6 +197,7 @@ async function PatrimonyView({ code }: { code: string }) {
     ["Marca", item.brand],
     ["Modelo", item.model],
     ["Estado de conservação", conservation],
+    ["Origem", origin],
     ["Localização", item.location],
     ["Responsável", item.responsible_name],
     ["Status", status],
