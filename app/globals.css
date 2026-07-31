@@ -858,3 +858,20 @@ tr.row-selected { background: #F7F9FF; }
 @media (max-width: 640px) {
   .stock-row-actions .button { padding: 8px 10px; font-size: 13px; }
 }
+
+/* ── Solicitação de Compra e Ordem de Serviço ──────────────── */
+/* Formulário público mais largo que o cartão de consulta de QR. */
+.public-card-wide { max-width: 560px; }
+
+/* Status da Solicitação de Compra */
+.badge.pr-pendente  { background: #FFFAEB; color: var(--warning); border-color: #FDE9A2; }
+.badge.pr-aprovada  { background: #EDFAF3; color: var(--success); border-color: #C3E6D4; }
+.badge.pr-rejeitada { background: #FEF2F2; color: var(--danger);  border-color: #FECACA; }
+.badge.pr-cancelada { background: #F0EFE5; color: #5C5A4A; }
+
+/* Status da Ordem de Serviço */
+.badge.so-rascunho    { background: #F0EFE5; color: #5C5A4A; }
+.badge.so-emitida     { background: #EFF8FF; color: var(--info);    border-color: #BAE0FD; }
+.badge.so-em_execucao { background: #FFFAEB; color: var(--warning); border-color: #FDE9A2; }
+.badge.so-concluida   { background: #EDFAF3; color: var(--success); border-color: #C3E6D4; }
+.badge.so-cancelada   { background: #FEF2F2; color: var(--danger);  border-color: #FECACA; }

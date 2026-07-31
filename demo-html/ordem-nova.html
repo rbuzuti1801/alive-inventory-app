@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Nova ordem de serviço — Alive Church</title>
+<link rel="stylesheet" href="demo.css" />
+</head>
+<body>
+<div class="demo-bar">
+  <strong>Demonstração estática</strong>
+  <a href="index.html">Índice</a>
+  <a href="solicitacao-publica.html">Formulário público</a>
+  <a href="solicitacoes-lista.html">Solicitações</a>
+  <a href="solicitacao-detalhe.html">Detalhe / aprovação</a>
+  <a href="ordens-lista.html">Ordens de Serviço</a>
+  <a href="ordem-nova.html">Nova ordem</a>
+  <a href="ordem-detalhe.html">Detalhe da ordem</a>
+</div>
+<div class="app-shell">
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <span class="alive">ALIVE</span>
+      <span class="church">CHURCH</span>
+      <div class="sidebar-logo-sub">INVENTÁRIO</div>
+    </div>
+    <div class="sidebar-user">
+      <span class="sidebar-user-name">Rafael Buzuti</span>
+      <span class="sidebar-user-role">Admin</span>
+    </div>
+    <nav class="sidebar-nav">
+        <a class="nav-item" href="#"><span class="nav-dot"></span><span>Dashboard</span></a>
+        <a class="nav-item" href="#"><span class="nav-dot"></span><span>Inventário</span></a>
+        <a class="nav-item" href="#"><span class="nav-dot"></span><span>Estoque</span></a>
+        <a class="nav-item" href="#"><span class="nav-dot"></span><span>Leitura QR</span></a>
+        <a class="nav-item" href="#"><span class="nav-dot"></span><span>Etiquetas</span></a>
+        <a class="nav-item" href="#"><span class="nav-dot"></span><span>Inventário rápido</span></a>
+        <a class="nav-item" href="solicitacoes-lista.html"><span class="nav-dot"></span><span>Solicitações de Compra</span></a>
+        <a class="nav-item nav-item-active" href="ordens-lista.html"><span class="nav-dot"></span><span>Ordens de Serviço</span></a>
+        <a class="nav-item" href="#"><span class="nav-dot"></span><span>Relatórios</span></a>
+        <a class="nav-item" href="#"><span class="nav-dot"></span><span>Setores</span></a>
+        <a class="nav-item" href="#"><span class="nav-dot"></span><span>Usuários</span></a>
+    </nav>
+  </aside>
+  <main class="main">
+    <div class="grid">
+      <div>
+        <a class="back-link" href="ordens-lista.html">← Voltar</a>
+        <h1 style="margin-top:6px">Nova ordem de serviço</h1>
+        <p class="muted">A ordem é salva como rascunho — o número é atribuído na emissão.</p>
+      </div>
+
+      <form class="grid">
+        <section class="panel">
+          <h2>Identificação</h2>
+          <div class="form-grid">
+            <div class="field"><label>Número</label><input value="Definido na emissão" disabled /></div>
+            <div class="field"><label>Status</label><input value="Rascunho" disabled /></div>
+            <div class="field"><label>Responsável interno *</label><input value="Rafael Buzuti" /></div>
+            <div class="field"><label>Ministério / Departamento</label><input placeholder="Ex.: Manutenção" /></div>
+          </div>
+        </section>
+
+        <section class="panel">
+          <h2>Serviço</h2>
+          <div class="form-grid">
+            <div class="field full"><label>Título *</label><input placeholder="Ex.: Manutenção do ar-condicionado do templo" /></div>
+            <div class="field full"><label>Descrição *</label><textarea rows="5" placeholder="Descreva o serviço contratado"></textarea></div>
+            <div class="field"><label>Local</label><input placeholder="Ex.: Templo principal" /></div>
+            <div class="field"><label>Forma de pagamento</label><input placeholder="Ex.: PIX em 2x" /></div>
+            <div class="field"><label>Início previsto</label><input type="date" /></div>
+            <div class="field"><label>Conclusão prevista</label><input type="date" /></div>
+            <div class="field"><label>Valor (R$)</label><input type="number" placeholder="0,00" /></div>
+            <div class="field"><label>Garantia</label><input placeholder="Ex.: 90 dias" /></div>
+            <div class="field"><label>Materiais inclusos</label><textarea rows="3"></textarea></div>
+            <div class="field"><label>Materiais não inclusos</label><textarea rows="3"></textarea></div>
+            <div class="field full"><label>Observações</label><textarea rows="3"></textarea></div>
+          </div>
+        </section>
+
+        <section class="panel">
+          <h2>Prestador</h2>
+          <p class="field-hint" style="margin-top:0">Todos os campos são opcionais. O que ficar em branco será impresso como espaço para preenchimento manual no PDF.</p>
+          <div class="form-grid">
+            <div class="field"><label>Nome</label><input /></div>
+            <div class="field"><label>CPF / CNPJ</label><input /></div>
+            <div class="field"><label>Telefone</label><input /></div>
+            <div class="field"><label>E-mail</label><input /></div>
+            <div class="field full"><label>Endereço</label><input /></div>
+            <div class="field"><label>Responsável</label><input /></div>
+          </div>
+        </section>
+
+        <div class="actions">
+          <button class="button" type="button">Salvar rascunho</button>
+          <a class="button secondary" href="ordens-lista.html">Cancelar</a>
+        </div>
+      </form>
+    </div>
+  </main>
+</div>
+</body>
+</html>

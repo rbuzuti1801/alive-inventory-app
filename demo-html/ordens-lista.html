@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Ordens de Serviço — Alive Church</title>
+<link rel="stylesheet" href="demo.css" />
+</head>
+<body>
+<div class="demo-bar">
+  <strong>Demonstração estática</strong>
+  <a href="index.html">Índice</a>
+  <a href="solicitacao-publica.html">Formulário público</a>
+  <a href="solicitacoes-lista.html">Solicitações</a>
+  <a href="solicitacao-detalhe.html">Detalhe / aprovação</a>
+  <a href="ordens-lista.html">Ordens de Serviço</a>
+  <a href="ordem-nova.html">Nova ordem</a>
+  <a href="ordem-detalhe.html">Detalhe da ordem</a>
+</div>
+<div class="app-shell">
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <span class="alive">ALIVE</span>
+      <span class="church">CHURCH</span>
+      <div class="sidebar-logo-sub">INVENTÁRIO</div>
+    </div>
+    <div class="sidebar-user">
+      <span class="sidebar-user-name">Rafael Buzuti</span>
+      <span class="sidebar-user-role">Admin</span>
+    </div>
+    <nav class="sidebar-nav">
+        <a class="nav-item" href="#"><span class="nav-dot"></span><span>Dashboard</span></a>
+        <a class="nav-item" href="#"><span class="nav-dot"></span><span>Inventário</span></a>
+        <a class="nav-item" href="#"><span class="nav-dot"></span><span>Estoque</span></a>
+        <a class="nav-item" href="#"><span class="nav-dot"></span><span>Leitura QR</span></a>
+        <a class="nav-item" href="#"><span class="nav-dot"></span><span>Etiquetas</span></a>
+        <a class="nav-item" href="#"><span class="nav-dot"></span><span>Inventário rápido</span></a>
+        <a class="nav-item" href="solicitacoes-lista.html"><span class="nav-dot"></span><span>Solicitações de Compra</span></a>
+        <a class="nav-item nav-item-active" href="ordens-lista.html"><span class="nav-dot"></span><span>Ordens de Serviço</span></a>
+        <a class="nav-item" href="#"><span class="nav-dot"></span><span>Relatórios</span></a>
+        <a class="nav-item" href="#"><span class="nav-dot"></span><span>Setores</span></a>
+        <a class="nav-item" href="#"><span class="nav-dot"></span><span>Usuários</span></a>
+    </nav>
+  </aside>
+  <main class="main">
+    <div class="topbar">
+      <div>
+        <h1>Ordens de Serviço</h1>
+        <p class="muted">Documento interno para impressão e assinatura física do prestador.</p>
+      </div>
+    </div>
+
+    <form class="toolbar">
+      <div class="field" style="flex:1;min-width:220px"><label>Busca</label><input placeholder="Número, serviço, prestador…" /></div>
+      <div class="field"><label>Status</label><select><option>Todos</option><option>Rascunho</option><option>Emitida</option><option>Em execução</option><option>Concluída</option><option>Cancelada</option></select></div>
+      <button class="button" type="button">Filtrar</button>
+      <a class="button secondary" href="ordens-lista.html">Limpar</a>
+      <a class="button gold" href="ordem-nova.html">+ Nova ordem</a>
+    </form>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Número</th><th>Serviço</th><th>Prestador</th><th>Responsável interno</th>
+            <th>Valor</th><th>Emissão</th><th>Status</th><th>Ações</th>
+          </tr>
+        </thead>
+        <tbody>
+              <tr>
+                <td data-label="Número"><a class="sku-badge" href="ordem-detalhe.html">OS-2026-0018</a></td>
+                <td data-label="Serviço"><strong>Manutenção do ar-condicionado do templo</strong></td>
+                <td data-label="Prestador">Clima Frio Serviços</td>
+                <td data-label="Responsável interno">Rafael Buzuti</td>
+                <td data-label="Valor">R$ 2.400,00</td>
+                <td data-label="Emissão">29/07/2026</td>
+                <td data-label="Status"><span class="badge so-emitida">Emitida</span></td>
+                <td data-label="Ações"><a class="button secondary" href="ordem-detalhe.html">Ver detalhes</a></td>
+              </tr>
+              <tr>
+                <td data-label="Número"><a class="sku-badge" href="ordem-detalhe.html">OS-2026-0017</a></td>
+                <td data-label="Serviço"><strong>Pintura da sala Kids</strong></td>
+                <td data-label="Prestador">Pinturas Alphaville</td>
+                <td data-label="Responsável interno">Mariana Alves</td>
+                <td data-label="Valor">R$ 3.150,00</td>
+                <td data-label="Emissão">22/07/2026</td>
+                <td data-label="Status"><span class="badge so-em_execucao">Em execução</span></td>
+                <td data-label="Ações"><a class="button secondary" href="ordem-detalhe.html">Ver detalhes</a></td>
+              </tr>
+              <tr>
+                <td data-label="Número"><a class="sku-badge" href="ordem-detalhe.html">OS-2026-0016</a></td>
+                <td data-label="Serviço"><strong>Revisão elétrica do palco</strong></td>
+                <td data-label="Prestador">—</td>
+                <td data-label="Responsável interno">Carlos Lima</td>
+                <td data-label="Valor">R$ 1.800,00</td>
+                <td data-label="Emissão">10/07/2026</td>
+                <td data-label="Status"><span class="badge so-concluida">Concluída</span></td>
+                <td data-label="Ações"><a class="button secondary" href="ordem-detalhe.html">Ver detalhes</a></td>
+              </tr>
+              <tr>
+                <td data-label="Número"><a class="sku-badge" href="ordem-detalhe.html">Rascunho</a></td>
+                <td data-label="Serviço"><strong>Troca de fechaduras das salas</strong></td>
+                <td data-label="Prestador">—</td>
+                <td data-label="Responsável interno">Rafael Buzuti</td>
+                <td data-label="Valor">R$ 640,00</td>
+                <td data-label="Emissão">—</td>
+                <td data-label="Status"><span class="badge so-rascunho">Rascunho</span></td>
+                <td data-label="Ações"><a class="button secondary" href="ordem-detalhe.html">Ver detalhes</a></td>
+              </tr>
+              <tr>
+                <td data-label="Número"><a class="sku-badge" href="ordem-detalhe.html">OS-2026-0015</a></td>
+                <td data-label="Serviço"><strong>Dedetização do estacionamento</strong></td>
+                <td data-label="Prestador">Vida Livre Controle</td>
+                <td data-label="Responsável interno">Juliana Reis</td>
+                <td data-label="Valor">R$ 980,00</td>
+                <td data-label="Emissão">02/07/2026</td>
+                <td data-label="Status"><span class="badge so-cancelada">Cancelada</span></td>
+                <td data-label="Ações"><a class="button secondary" href="ordem-detalhe.html">Ver detalhes</a></td>
+              </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="table-footer">
+      <span>Exibindo 1–5 de 5 ordens</span>
+      <span>Itens por página: 20</span>
+    </div>
+  </main>
+</div>
+</body>
+</html>

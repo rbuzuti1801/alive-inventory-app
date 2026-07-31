@@ -137,3 +137,26 @@ export type ShoppingListSource = (typeof shoppingListSources)[number];
 
 export const shoppingListStatuses = ["pendente", "comprado"] as const;
 export type ShoppingListStatus = (typeof shoppingListStatuses)[number];
+
+// ── Solicitação de Compra (formulário público + triagem interna) ─────────
+export const purchaseRequestStatuses = ["pendente", "aprovada", "rejeitada", "cancelada"] as const;
+export type PurchaseRequestStatus = (typeof purchaseRequestStatuses)[number];
+
+export const purchaseRequestStatusLabels: Record<PurchaseRequestStatus, string> = {
+  pendente: "Pendente",
+  aprovada: "Aprovada",
+  rejeitada: "Rejeitada",
+  cancelada: "Cancelada",
+};
+
+// ── Ordem de Serviço (documento interno para assinatura física) ──────────
+export const serviceOrderStatuses = ["rascunho", "emitida", "em_execucao", "concluida", "cancelada"] as const;
+export type ServiceOrderStatus = (typeof serviceOrderStatuses)[number];
+
+export const serviceOrderStatusLabels: Record<ServiceOrderStatus, string> = {
+  rascunho: "Rascunho",
+  emitida: "Emitida",
+  em_execucao: "Em execução",
+  concluida: "Concluída",
+  cancelada: "Cancelada",
+};
