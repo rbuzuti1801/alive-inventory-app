@@ -23,6 +23,9 @@ export function middleware(request: NextRequest) {
   return NextResponse.next();
 }
 
+// `logo.png` fica fora do gate: é o logo institucional usado no cabeçalho dos
+// documentos imprimíveis, carregado por uma janela de impressão que pode não
+// levar a sessão — sem a isenção o PDF sairia sem o logo.
 export const config = {
-  matcher: ["/((?!_next/static|_next/image|favicon.ico).*)"],
+  matcher: ["/((?!_next/static|_next/image|favicon.ico|logo.png).*)"],
 };
