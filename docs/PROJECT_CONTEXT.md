@@ -24,6 +24,7 @@ O sistema é operado majoritariamente por **voluntários com pouco treinamento**
 - Página pública consultiva de produto via QR Code (deep link), com ações liberadas após login.
 - Dashboard unificado com indicadores de patrimônio e estoque.
 - Gestão de usuários internos, setores e subcategorias.
+- Perfil da Igreja (dados institucionais dos documentos).
 - Solicitação de Compra pública com triagem interna e PDF da aprovação.
 - Ordens de Serviço internas (documento para assinatura física) com PDF.
 
@@ -56,7 +57,12 @@ O sistema é operado majoritariamente por **voluntários com pouco treinamento**
 - Toda mudança de status passa pela RPC atômica `set_service_order_status` (status + número + histórico na mesma transação). O histórico fica em `service_order_events`.
 - Todos os dados do prestador são opcionais: o que ficar vazio é impresso **em branco** no PDF, para preenchimento manual na hora da assinatura.
 
-### 3.5 Núcleo compartilhado
+### 3.5 Perfil da Igreja (`church_profile`)
+- Tabela **singleton** (uma linha, garantida por `singleton boolean unique check (singleton)`) com nome, razão social, CNPJ, endereço, contatos e logo.
+- Editável em `/church-profile` (**somente admin**) — antes esses dados eram variáveis de ambiente; agora mudam sem redeploy.
+- É a fonte do cabeçalho de todo documento impresso: a server page carrega o perfil (`lib/institution-server.ts`) e passa para o componente que monta o PDF. `lib/institution.ts` fica puro porque viaja para o cliente junto com `lib/print.ts`.
+
+### 3.6 Núcleo compartilhado
 - Autenticação, sessão e permissões.
 - Infraestrutura de QR Code e etiquetas.
 - Convenções de página, API, validação e constantes.
@@ -147,6 +153,7 @@ A página `/p/[code]` é o **resolvedor público universal**: despacha por prefi
 | **Enviar** Solicitação de Compra | Público (sem login) |
 | **Triagem** de Solicitação de Compra (aprovar/rejeitar/cancelar) | `admin` ou `responsavel` (`canManagePurchaseRequests`) |
 | **Ordens de Serviço** (criar, emitir, acompanhar) | `admin` ou `responsavel` (`canManageServiceOrders`) |
+| **Perfil da Igreja** | `admin` (`canManageChurchProfile`) |
 
 **Racional:** voluntários (frequentemente `visualizador`) precisam registrar consumo sem fricção, então movimentar é liberado a todos. Ajuste corrige saldo absoluto → exige mais responsabilidade. Catálogo e localizações são estruturais → só admin.
 
@@ -188,6 +195,7 @@ A página `/p/[code]` é o **resolvedor público universal**: despacha por prefi
 - Rascunho, emissão com número definitivo, acompanhamento (em execução/concluída/cancelada), histórico e PDF com assinaturas.
 
 **Compartilhado**
+- Perfil da Igreja editável pelo admin, alimentando o cabeçalho dos documentos.
 - Documentos imprimíveis A4 com logo e dados institucionais (`lib/print.ts`).
 - Dashboard com indicadores de patrimônio e seção de estoque (alertas de reposição, mais consumidos em 30 dias, últimas movimentações).
 - Resolução genérica de QR (dispatch por prefixo).
@@ -213,7 +221,8 @@ A modelagem já foi preparada para as expansões abaixo (nenhuma implementada ai
 | `lib/validators.ts` | Schemas Zod |
 | `lib/constants.ts` | Enums e labels PT-BR |
 | `lib/api.ts` | `errorResponse` e helpers de request |
-| `lib/institution.ts` | Dados institucionais impressos nos documentos (sobrescrevíveis por env) |
+| `lib/institution.ts` | Formato dos dados institucionais usados nos documentos (puro, vai ao cliente) |
+| `lib/institution-server.ts` | Leitura do Perfil da Igreja (`church_profile`) no servidor |
 | `lib/print.ts` | Motor de documentos A4 imprimíveis (cabeçalho, campos, assinaturas) |
 | `lib/purchase-requests.ts` | Regras de triagem da Solicitação de Compra |
 | `lib/service-orders.ts` | Ciclo de vida da Ordem de Serviço |

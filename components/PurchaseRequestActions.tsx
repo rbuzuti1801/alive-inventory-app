@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Ban, Check, FileText, X } from "lucide-react";
 import { purchaseRequestStatusLabels, type PurchaseRequestStatus } from "@/lib/constants";
+import type { Institution } from "@/lib/institution";
 import { buildDocument, fieldsBlock, formatCurrency, formatDate, formatDateTime, section, signaturesBlock, openPrintDocument } from "@/lib/print";
 import { canPrintPurchaseRequest, purchaseRequestActions } from "@/lib/purchase-requests";
 
@@ -33,7 +34,7 @@ export type PurchaseRequestDetail = {
 
 // Documento oficial da solicitação aprovada (A4, com espaço para assinatura
 // física). Mesmo motor de impressão dos demais documentos (lib/print.ts).
-function buildRequestDocument(request: PurchaseRequestDetail, origin: string) {
+function buildRequestDocument(request: PurchaseRequestDetail, institution: Institution, origin: string) {
   const body = [
     section(
       "Solicitante",
@@ -83,11 +84,18 @@ function buildRequestDocument(request: PurchaseRequestDetail, origin: string) {
       `Status: ${purchaseRequestStatusLabels[request.status]}`,
     ],
     body,
+    institution,
     origin,
   });
 }
 
-export function PurchaseRequestActions({ request }: { request: PurchaseRequestDetail }) {
+export function PurchaseRequestActions({
+  request,
+  institution,
+}: {
+  request: PurchaseRequestDetail;
+  institution: Institution;
+}) {
   const router = useRouter();
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
@@ -124,7 +132,7 @@ export function PurchaseRequestActions({ request }: { request: PurchaseRequestDe
   }
 
   function printDocument() {
-    const message = openPrintDocument(buildRequestDocument(request, window.location.origin));
+    const message = openPrintDocument(buildRequestDocument(request, institution, window.location.origin));
     if (message) setError(message);
   }
 

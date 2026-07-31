@@ -288,3 +288,18 @@ export const serviceOrderStatusSchema = z.object({
   status: z.enum(serviceOrderStatuses),
   notes: nullableText,
 });
+
+// ── Perfil da Igreja (dados institucionais dos documentos) ────────────────
+export const churchProfileSchema = z.object({
+  name: z.string().trim().min(1, "Informe o nome da igreja.").max(150),
+  legal_name: nullableText,
+  document: nullableText,
+  address: nullableText,
+  phone: nullableText,
+  email: z.preprocess(
+    (value) => (value === "" || value == null ? null : value),
+    z.string().trim().email("E-mail inválido.").max(150).nullable().optional(),
+  ),
+  website: nullableText,
+  logo_url: nullableText,
+});

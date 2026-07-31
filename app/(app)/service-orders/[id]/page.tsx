@@ -2,6 +2,7 @@ import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import { requireUser } from "@/lib/auth";
 import { canManageServiceOrders } from "@/lib/permissions";
+import { loadInstitution } from "@/lib/institution-server";
 import { supabaseAdmin } from "@/lib/supabase";
 import { serviceOrderStatusLabels, type ServiceOrderStatus } from "@/lib/constants";
 import { ServiceOrderActions, type ServiceOrderDetail } from "@/components/ServiceOrderActions";
@@ -46,13 +47,14 @@ export default async function ServiceOrderDetailPage({ params }: { params: Promi
   }
 
   const { id } = await params;
-  const [{ data }, { data: events }] = await Promise.all([
+  const [{ data }, { data: events }, institution] = await Promise.all([
     supabaseAdmin.from("service_orders").select("*").eq("id", id).maybeSingle(),
     supabaseAdmin
       .from("service_order_events")
       .select("id,event_type,from_status,to_status,notes,user_name,created_at")
       .eq("order_id", id)
       .order("created_at", { ascending: false }),
+    loadInstitution(),
   ]);
 
   if (!data) return <div className="alert error">Ordem de serviço não encontrada.</div>;
@@ -109,7 +111,7 @@ export default async function ServiceOrderDetailPage({ params }: { params: Promi
         </div>
       </div>
 
-      <ServiceOrderActions order={order} />
+      <ServiceOrderActions order={order} institution={institution} />
 
       <section className="panel">
         <h2>Identificação</h2>

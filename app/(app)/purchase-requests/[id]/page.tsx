@@ -2,6 +2,7 @@ import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import { requireUser } from "@/lib/auth";
 import { canManagePurchaseRequests } from "@/lib/permissions";
+import { loadInstitution } from "@/lib/institution-server";
 import { supabaseAdmin } from "@/lib/supabase";
 import { purchaseRequestStatusLabels, type PurchaseRequestStatus } from "@/lib/constants";
 import { PurchaseRequestActions, type PurchaseRequestDetail } from "@/components/PurchaseRequestActions";
@@ -30,7 +31,10 @@ export default async function PurchaseRequestDetailPage({ params }: { params: Pr
   }
 
   const { id } = await params;
-  const { data } = await supabaseAdmin.from("purchase_requests").select("*").eq("id", id).maybeSingle();
+  const [{ data }, institution] = await Promise.all([
+    supabaseAdmin.from("purchase_requests").select("*").eq("id", id).maybeSingle(),
+    loadInstitution(),
+  ]);
   if (!data) return <div className="alert error">Solicitação não encontrada.</div>;
 
   const request = data as PurchaseRequestDetail;
@@ -76,7 +80,7 @@ export default async function PurchaseRequestDetailPage({ params }: { params: Pr
         </div>
       </div>
 
-      <PurchaseRequestActions request={request} />
+      <PurchaseRequestActions request={request} institution={institution} />
 
       <section className="panel detail-list">
         {requestFields.map(([label, value]) => (

@@ -1,24 +1,38 @@
 // Dados institucionais impressos no cabeçalho dos documentos (Solicitação de
-// Compra aprovada e Ordem de Serviço). Ficam centralizados aqui — mesma ideia
-// dos labels de lib/constants.ts — para que qualquer documento novo herde o
-// mesmo cabeçalho sem duplicar texto.
+// Compra aprovada e Ordem de Serviço). A fonte é a tabela singleton
+// `church_profile`, editável em /church-profile pelo admin — ver
+// lib/institution-server.ts para a leitura.
 //
-// Os campos podem ser sobrescritos por variável de ambiente (sem código novo)
-// quando a igreja formalizar CNPJ/endereço/contato definitivos.
+// Este arquivo é puro de propósito: ele viaja para o cliente junto com
+// lib/print.ts, então não pode importar `supabaseAdmin`.
 
-export const institution = {
-  name: process.env.NEXT_PUBLIC_INSTITUTION_NAME ?? "Alive Church",
-  legalName: process.env.NEXT_PUBLIC_INSTITUTION_LEGAL_NAME ?? "Alive Church Alphaville",
-  document: process.env.NEXT_PUBLIC_INSTITUTION_DOCUMENT ?? "",
-  address: process.env.NEXT_PUBLIC_INSTITUTION_ADDRESS ?? "",
-  contact: process.env.NEXT_PUBLIC_INSTITUTION_CONTACT ?? "",
-  // Logo servido pela aplicação (public/logo.png).
+export type Institution = {
+  name: string;
+  legalName: string;
+  document: string;
+  address: string;
+  phone: string;
+  email: string;
+  website: string;
+  /** Caminho/URL do logo; vazio usa o arquivo padrão servido pelo app. */
+  logoPath: string;
+};
+
+// Usado enquanto o perfil não foi preenchido (ou se a leitura falhar): o
+// documento sai com a identidade da igreja, apenas sem os dados cadastrais.
+export const defaultInstitution: Institution = {
+  name: "Alive Church",
+  legalName: "",
+  document: "",
+  address: "",
+  phone: "",
+  email: "",
+  website: "",
   logoPath: "/logo.png",
-} as const;
+};
 
 /** Linhas do cabeçalho que estão preenchidas (as vazias não ocupam espaço). */
-export function institutionLines(): string[] {
-  return [institution.legalName, institution.document, institution.address, institution.contact].filter(
-    (line) => line.trim() !== "",
-  );
+export function institutionLines(institution: Institution): string[] {
+  const contact = [institution.phone, institution.email, institution.website].filter((v) => v.trim() !== "").join(" · ");
+  return [institution.legalName, institution.document, institution.address, contact].filter((line) => line.trim() !== "");
 }

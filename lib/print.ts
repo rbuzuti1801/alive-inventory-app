@@ -7,7 +7,7 @@
 // agora há mais de um documento oficial (Solicitação de Compra e Ordem de
 // Serviço) e todos compartilham cabeçalho institucional e assinaturas.
 
-import { institution, institutionLines } from "@/lib/institution";
+import { institutionLines, type Institution } from "@/lib/institution";
 
 export function escapeHtml(value: string) {
   return value
@@ -80,6 +80,7 @@ export function buildDocument({
   number,
   meta,
   body,
+  institution,
   origin,
 }: {
   documentTitle: string;
@@ -87,11 +88,13 @@ export function buildDocument({
   number: string;
   meta: string[];
   body: string;
+  /** Perfil da Igreja carregado pela página (lib/institution-server.ts). */
+  institution: Institution;
   /** `window.location.origin` — necessário porque a janela de impressão é
    *  aberta em branco e não resolve caminhos relativos. */
   origin: string;
 }) {
-  const lines = institutionLines()
+  const lines = institutionLines(institution)
     .map((line) => `<span>${escapeHtml(line)}</span>`)
     .join("");
 
@@ -133,7 +136,7 @@ export function buildDocument({
 </head>
 <body onload="window.focus();window.print();">
   <header class="doc-head">
-    <img src="${origin}${institution.logoPath}" alt="${escapeHtml(institution.name)}" />
+    <img src="${institution.logoPath.startsWith("http") ? "" : origin}${institution.logoPath}" alt="${escapeHtml(institution.name)}" />
     <div class="institution">
       <strong>${escapeHtml(institution.name)}</strong>
       ${lines}

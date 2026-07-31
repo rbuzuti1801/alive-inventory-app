@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Boxes, ChevronRight, ClipboardList, FileSignature, FileText, LayoutDashboard, MapPinned, Package, QrCode, ScanLine, ShoppingCart, Users } from "lucide-react";
+import { Boxes, Building2, ChevronRight, ClipboardList, FileSignature, FileText, LayoutDashboard, MapPinned, Package, QrCode, ScanLine, ShoppingCart, Users } from "lucide-react";
 
 // `managerOnly`: admin e gestor (responsavel). `adminOnly`: somente admin.
 const navItems = [
@@ -17,6 +17,7 @@ const navItems = [
   { href: "/reports",   label: "Relatórios", icon: FileText },
   { href: "/sectors",   label: "Setores",    icon: MapPinned, adminOnly: true },
   { href: "/users",     label: "Usuários",   icon: Users,     adminOnly: true },
+  { href: "/church-profile", label: "Perfil da Igreja", icon: Building2, adminOnly: true },
 ];
 
 export function SidebarNav({ role }: { role: string }) {

@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Ban, CheckCircle2, FileText, Pencil, PlayCircle, Send } from "lucide-react";
 import { serviceOrderStatusLabels, type ServiceOrderStatus } from "@/lib/constants";
+import type { Institution } from "@/lib/institution";
 import {
   buildDocument,
   fieldsBlock,
@@ -47,7 +48,7 @@ export type ServiceOrderDetail = {
 
 // Documento de assinatura física. Campos do prestador vazios saem em branco no
 // papel — é exatamente o caso de uso previsto (contratação fechada na hora).
-function buildOrderDocument(order: ServiceOrderDetail, origin: string) {
+function buildOrderDocument(order: ServiceOrderDetail, institution: Institution, origin: string) {
   const body = [
     section(
       "Identificação",
@@ -101,6 +102,7 @@ function buildOrderDocument(order: ServiceOrderDetail, origin: string) {
       `Status: ${serviceOrderStatusLabels[order.status]}`,
     ].filter(Boolean),
     body,
+    institution,
     origin,
   });
 }
@@ -117,7 +119,13 @@ const actionMeta: Record<string, { label: string; className: string; icon: typeo
   cancelada: { label: "Cancelar ordem", className: "button danger", icon: Ban, confirm: "Cancelar esta ordem de serviço?" },
 };
 
-export function ServiceOrderActions({ order }: { order: ServiceOrderDetail }) {
+export function ServiceOrderActions({
+  order,
+  institution,
+}: {
+  order: ServiceOrderDetail;
+  institution: Institution;
+}) {
   const router = useRouter();
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
@@ -142,7 +150,7 @@ export function ServiceOrderActions({ order }: { order: ServiceOrderDetail }) {
   }
 
   function printDocument() {
-    const message = openPrintDocument(buildOrderDocument(order, window.location.origin));
+    const message = openPrintDocument(buildOrderDocument(order, institution, window.location.origin));
     if (message) setError(message);
   }
 

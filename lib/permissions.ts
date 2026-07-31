@@ -57,3 +57,9 @@ export function canManagePurchaseRequests(user: SessionUser) {
 export function canManageServiceOrders(user: SessionUser) {
   return user.role === "admin" || user.role === "responsavel";
 }
+
+// ── Perfil da Igreja ──────────────────────────────────────────────────────
+// Dados institucionais impressos nos documentos: estruturais, só admin edita.
+export function canManageChurchProfile(user: SessionUser) {
+  return user.role === "admin";
+}
