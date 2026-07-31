@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Perfil da Igreja — Alive Church</title>
+<link rel="stylesheet" href="demo.css" />
+</head>
+<body>
+<div class="demo-bar">
+  <strong>Demonstração estática</strong>
+  <a href="index.html">Índice</a>
+  <a href="solicitacao-publica.html">Formulário público</a>
+  <a href="solicitacoes-lista.html">Solicitações</a>
+  <a href="solicitacao-detalhe.html">Detalhe / aprovação</a>
+  <a href="ordens-lista.html">Ordens de Serviço</a>
+  <a href="ordem-nova.html">Nova ordem</a>
+  <a href="ordem-detalhe.html">Detalhe da ordem</a>
+  <a href="perfil-igreja.html">Perfil da Igreja</a>
+</div>
+<div class="app-shell">
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <span class="alive">ALIVE</span>
+      <span class="church">CHURCH</span>
+      <div class="sidebar-logo-sub">INVENTÁRIO</div>
+    </div>
+    <div class="sidebar-user">
+      <span class="sidebar-user-name">Rafael Buzuti</span>
+      <span class="sidebar-user-role">Admin</span>
+    </div>
+    <nav class="sidebar-nav">
+        <a class="nav-item" href="#"><span class="nav-dot"></span><span>Dashboard</span></a>
+        <a class="nav-item" href="#"><span class="nav-dot"></span><span>Inventário</span></a>
+        <a class="nav-item" href="#"><span class="nav-dot"></span><span>Estoque</span></a>
+        <a class="nav-item" href="#"><span class="nav-dot"></span><span>Leitura QR</span></a>
+        <a class="nav-item" href="#"><span class="nav-dot"></span><span>Etiquetas</span></a>
+        <a class="nav-item" href="#"><span class="nav-dot"></span><span>Inventário rápido</span></a>
+        <a class="nav-item" href="solicitacoes-lista.html"><span class="nav-dot"></span><span>Solicitações de Compra</span></a>
+        <a class="nav-item" href="ordens-lista.html"><span class="nav-dot"></span><span>Ordens de Serviço</span></a>
+        <a class="nav-item" href="#"><span class="nav-dot"></span><span>Relatórios</span></a>
+        <a class="nav-item" href="#"><span class="nav-dot"></span><span>Setores</span></a>
+        <a class="nav-item" href="#"><span class="nav-dot"></span><span>Usuários</span></a>
+        <a class="nav-item nav-item-active" href="perfil-igreja.html"><span class="nav-dot"></span><span>Perfil da Igreja</span></a>
+    </nav>
+  </aside>
+  <main class="main">
+    <div class="grid">
+      <div class="topbar">
+        <div>
+          <h1>Perfil da Igreja</h1>
+          <p class="muted">Dados institucionais usados no cabeçalho dos documentos (Solicitação de Compra e Ordem de Serviço).</p>
+        </div>
+      </div>
+
+      <form class="grid">
+        <section class="panel">
+          <h2>Identificação</h2>
+          <div class="form-grid">
+            <div class="field">
+              <label>Nome de exibição *</label><input value="Alive Church" />
+              <p class="field-hint">Aparece em destaque no cabeçalho dos documentos.</p>
+            </div>
+            <div class="field"><label>Razão social</label><input value="Alive Church Alphaville" /></div>
+            <div class="field"><label>CNPJ</label><input placeholder="00.000.000/0001-00" /></div>
+            <div class="field"><label>Endereço</label><input placeholder="Rua, número — cidade/UF" /></div>
+          </div>
+        </section>
+
+        <section class="panel">
+          <h2>Contato</h2>
+          <div class="form-grid">
+            <div class="field"><label>Telefone</label><input /></div>
+            <div class="field"><label>E-mail</label><input type="email" /></div>
+            <div class="field"><label>Site</label><input /></div>
+            <div class="field">
+              <label>Logo (URL ou caminho)</label><input placeholder="/logo.png" />
+              <p class="field-hint">Em branco usa o logo padrão do sistema (/logo.png).</p>
+            </div>
+          </div>
+        </section>
+
+        <div class="actions">
+          <button class="button" type="button">Salvar perfil</button>
+          <span class="muted">Última atualização por Rafael Buzuti em 31/07/2026 11:40</span>
+        </div>
+      </form>
+    </div>
+  </main>
+</div>
+</body>
+</html>

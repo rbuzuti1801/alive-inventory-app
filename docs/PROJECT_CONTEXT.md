@@ -24,6 +24,9 @@ O sistema é operado majoritariamente por **voluntários com pouco treinamento**
 - Página pública consultiva de produto via QR Code (deep link), com ações liberadas após login.
 - Dashboard unificado com indicadores de patrimônio e estoque.
 - Gestão de usuários internos, setores e subcategorias.
+- Perfil da Igreja (dados institucionais dos documentos).
+- Solicitação de Compra pública com triagem interna e PDF da aprovação.
+- Ordens de Serviço internas (documento para assinatura física) com PDF.
 
 ## 3. Módulos existentes
 
@@ -40,7 +43,26 @@ O sistema é operado majoritariamente por **voluntários com pouco treinamento**
 - Toda escrita de saldo passa pela RPC atômica `apply_stock_movement` (ver §7).
 - Hub operacional: `/stock` (abas Produtos / Localizações / Movimentações). Página pública do produto: `/p/{public_code}`.
 
-### 3.3 Núcleo compartilhado
+### 3.3 Solicitação de Compra (`purchase_requests`)
+- Formulário **público** em `/solicitacao-compra` (sem login): qualquer pessoa com o link envia. A solicitação nasce `pendente` com número legível `SC-{ANO}-{0000}` gerado pelo banco (default da coluna + sequência) — o cliente não influencia número nem status.
+- Única rota de escrita pública além da retirada rápida: `POST /api/purchase-requests/public` (caminho-folha liberado no middleware, com rate limit por IP como no login).
+- Triagem interna em `/purchase-requests` (admin e gestores): busca, filtros, detalhe, aprovar, rejeitar e cancelar. Na aprovação registram-se quantidade, valor, marca e observações aprovadas; **responsável e data/hora vêm sempre da sessão**.
+- A solicitação aprovada gera um **PDF** com logo, dados institucionais, dados do solicitante, item, aprovação e espaço para assinatura física.
+- **Sem integração com a Lista de Compras** (`stock_shopping_list`): são fluxos distintos — a lista é reposição de estoque, a solicitação é um pedido externo com triagem.
+
+### 3.4 Ordem de Serviço (`service_orders`)
+- Módulo **interno** (admin e gestores) em `/service-orders`. A ordem é apenas um **documento para impressão e assinatura física** — não é contrato eletrônico, não movimenta estoque e não gera lançamento financeiro.
+- Ciclo: `rascunho → emitida → em_execucao → concluida`, com `cancelada` disponível em qualquer estado não final. O conteúdo só pode ser editado enquanto rascunho.
+- O **número** (`OS-{ANO}-{0000}`) só é atribuído na **emissão** e depois é definitivo (trigger `protect_service_order_number`, mesma ideia do SKU patrimonial).
+- Toda mudança de status passa pela RPC atômica `set_service_order_status` (status + número + histórico na mesma transação). O histórico fica em `service_order_events`.
+- Todos os dados do prestador são opcionais: o que ficar vazio é impresso **em branco** no PDF, para preenchimento manual na hora da assinatura.
+
+### 3.5 Perfil da Igreja (`church_profile`)
+- Tabela **singleton** (uma linha, garantida por `singleton boolean unique check (singleton)`) com nome, razão social, CNPJ, endereço, contatos e logo.
+- Editável em `/church-profile` (**somente admin**) — antes esses dados eram variáveis de ambiente; agora mudam sem redeploy.
+- É a fonte do cabeçalho de todo documento impresso: a server page carrega o perfil (`lib/institution-server.ts`) e passa para o componente que monta o PDF. `lib/institution.ts` fica puro porque viaja para o cliente junto com `lib/print.ts`.
+
+### 3.6 Núcleo compartilhado
 - Autenticação, sessão e permissões.
 - Infraestrutura de QR Code e etiquetas.
 - Convenções de página, API, validação e constantes.
@@ -114,7 +136,7 @@ A página `/p/[code]` é o **resolvedor público universal**: despacha por prefi
 ### Autenticação
 - Login por usuário/senha (`users_internal`, hash bcrypt). Sessão em **JWT** (`jose`) dentro de cookie **httpOnly** (`alive_inventory_session`), expiração de 8h.
 - `lib/auth.ts`: `createSession`, `getSessionUser`, `requireUser` (páginas — redireciona para `/login`), `requireApiUser` (rotas — retorna 401).
-- `middleware.ts` bloqueia tudo sem cookie, exceto `publicPaths = ["/login", "/api/auth/login", "/p"]`.
+- `middleware.ts` bloqueia tudo sem cookie, exceto os caminhos de `lib/access.ts`: `/login`, `/api/auth/login`, `/p`, `/api/stock/quick-withdraw`, `/solicitacao-compra` e `/api/purchase-requests/public`. Rotas públicas de escrita são sempre **caminhos-folha** — liberar o prefixo `/api/purchase-requests` abriria também a triagem `/api/purchase-requests/{id}`.
 
 ### Papéis
 `admin`, `responsavel`, `visualizador` (em `lib/constants.ts`).
@@ -128,6 +150,10 @@ A página `/p/[code]` é o **resolvedor público universal**: despacha por prefi
 | **Movimentar estoque** (entrada/saída/transferência) | Qualquer usuário ativo (`canMoveStock`) |
 | **Ajustar contagem** de estoque | `admin` ou `responsavel` (`canAdjustStock`) |
 | **Gerenciar catálogo/localizações** de estoque | `admin` (`canManageStock`) |
+| **Enviar** Solicitação de Compra | Público (sem login) |
+| **Triagem** de Solicitação de Compra (aprovar/rejeitar/cancelar) | `admin` ou `responsavel` (`canManagePurchaseRequests`) |
+| **Ordens de Serviço** (criar, emitir, acompanhar) | `admin` ou `responsavel` (`canManageServiceOrders`) |
+| **Perfil da Igreja** | `admin` (`canManageChurchProfile`) |
 
 **Racional:** voluntários (frequentemente `visualizador`) precisam registrar consumo sem fricção, então movimentar é liberado a todos. Ajuste corrige saldo absoluto → exige mais responsabilidade. Catálogo e localizações são estruturais → só admin.
 
@@ -162,7 +188,15 @@ A página `/p/[code]` é o **resolvedor público universal**: despacha por prefi
 - Etiquetas de estoque 50×30mm com deep link e impressão em lote.
 - Status visual do saldo (normal/atenção/baixo) vs. estoque mínimo.
 
+**Solicitação de Compra**
+- Formulário público, numeração automática, triagem (aprovar/rejeitar/cancelar) e PDF da solicitação aprovada.
+
+**Ordens de Serviço**
+- Rascunho, emissão com número definitivo, acompanhamento (em execução/concluída/cancelada), histórico e PDF com assinaturas.
+
 **Compartilhado**
+- Perfil da Igreja editável pelo admin, alimentando o cabeçalho dos documentos.
+- Documentos imprimíveis A4 com logo e dados institucionais (`lib/print.ts`).
 - Dashboard com indicadores de patrimônio e seção de estoque (alertas de reposição, mais consumidos em 30 dias, últimas movimentações).
 - Resolução genérica de QR (dispatch por prefixo).
 
@@ -171,7 +205,7 @@ A página `/p/[code]` é o **resolvedor público universal**: despacha por prefi
 A modelagem já foi preparada para as expansões abaixo (nenhuma implementada ainda):
 
 - **Compras / EAN** — o campo `barcode` em `stock_products` está reservado para código de barras comercial.
-- **Requisições internas / solicitações de materiais** — uma futura tabela `stock_requests` que, ao ser aprovada, chama a **mesma** RPC `apply_stock_movement` (por isso a RPC recebe `p_reason`/`p_user_id` e retorna `movement_id`).
+- **Requisições internas / solicitações de materiais** — uma futura tabela `stock_requests` que, ao ser aprovada, chama a **mesma** RPC `apply_stock_movement` (por isso a RPC recebe `p_reason`/`p_user_id` e retorna `movement_id`). Não confundir com `purchase_requests` (§3.3), que é pedido externo de compra e **não** movimenta estoque.
 - **Almoxarifado central** — o modelo de transferência entre localizações já representa fluxo de almoxarifado → pontos de consumo.
 - **Novos módulos por QR** — os prefixos `B-` (patrimônio) e `L-` (localização) já estão reservados no resolvedor genérico; um novo módulo entra adicionando o prefixo, sem alterar os existentes.
 
@@ -187,6 +221,11 @@ A modelagem já foi preparada para as expansões abaixo (nenhuma implementada ai
 | `lib/validators.ts` | Schemas Zod |
 | `lib/constants.ts` | Enums e labels PT-BR |
 | `lib/api.ts` | `errorResponse` e helpers de request |
+| `lib/institution.ts` | Formato dos dados institucionais usados nos documentos (puro, vai ao cliente) |
+| `lib/institution-server.ts` | Leitura do Perfil da Igreja (`church_profile`) no servidor |
+| `lib/print.ts` | Motor de documentos A4 imprimíveis (cabeçalho, campos, assinaturas) |
+| `lib/purchase-requests.ts` | Regras de triagem da Solicitação de Compra |
+| `lib/service-orders.ts` | Ciclo de vida da Ordem de Serviço |
 | `lib/audit-server.ts` | Progresso de auditoria patrimonial |
 | `middleware.ts` | Gate de autenticação e rotas públicas |
 | `app/(app)/*` | Páginas autenticadas (dashboard, inventory, stock, scan, labels, audit, reports, sectors, users) |

@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Solicitações de Compra — Alive Church</title>
+<link rel="stylesheet" href="demo.css" />
+</head>
+<body>
+<div class="demo-bar">
+  <strong>Demonstração estática</strong>
+  <a href="index.html">Índice</a>
+  <a href="solicitacao-publica.html">Formulário público</a>
+  <a href="solicitacoes-lista.html">Solicitações</a>
+  <a href="solicitacao-detalhe.html">Detalhe / aprovação</a>
+  <a href="ordens-lista.html">Ordens de Serviço</a>
+  <a href="ordem-nova.html">Nova ordem</a>
+  <a href="ordem-detalhe.html">Detalhe da ordem</a>
+  <a href="perfil-igreja.html">Perfil da Igreja</a>
+</div>
+<div class="app-shell">
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <span class="alive">ALIVE</span>
+      <span class="church">CHURCH</span>
+      <div class="sidebar-logo-sub">INVENTÁRIO</div>
+    </div>
+    <div class="sidebar-user">
+      <span class="sidebar-user-name">Rafael Buzuti</span>
+      <span class="sidebar-user-role">Admin</span>
+    </div>
+    <nav class="sidebar-nav">
+        <a class="nav-item" href="#"><span class="nav-dot"></span><span>Dashboard</span></a>
+        <a class="nav-item" href="#"><span class="nav-dot"></span><span>Inventário</span></a>
+        <a class="nav-item" href="#"><span class="nav-dot"></span><span>Estoque</span></a>
+        <a class="nav-item" href="#"><span class="nav-dot"></span><span>Leitura QR</span></a>
+        <a class="nav-item" href="#"><span class="nav-dot"></span><span>Etiquetas</span></a>
+        <a class="nav-item" href="#"><span class="nav-dot"></span><span>Inventário rápido</span></a>
+        <a class="nav-item nav-item-active" href="solicitacoes-lista.html"><span class="nav-dot"></span><span>Solicitações de Compra</span></a>
+        <a class="nav-item" href="ordens-lista.html"><span class="nav-dot"></span><span>Ordens de Serviço</span></a>
+        <a class="nav-item" href="#"><span class="nav-dot"></span><span>Relatórios</span></a>
+        <a class="nav-item" href="#"><span class="nav-dot"></span><span>Setores</span></a>
+        <a class="nav-item" href="#"><span class="nav-dot"></span><span>Usuários</span></a>
+        <a class="nav-item" href="perfil-igreja.html"><span class="nav-dot"></span><span>Perfil da Igreja</span></a>
+    </nav>
+  </aside>
+  <main class="main">
+    <div class="topbar">
+      <div>
+        <h1>Solicitações de Compra</h1>
+        <p class="muted">Solicitações recebidas pelo formulário público — analise, aprove ou rejeite.</p>
+      </div>
+    </div>
+
+    <form class="toolbar">
+      <div class="field" style="flex:1;min-width:220px"><label>Busca</label><input placeholder="Número, solicitante, item…" /></div>
+      <div class="field"><label>Status</label><select><option>Todos</option><option>Pendente</option><option>Aprovada</option><option>Rejeitada</option><option>Cancelada</option></select></div>
+      <div class="field"><label>Ministério / Departamento</label><input /></div>
+      <button class="button" type="button">Filtrar</button>
+      <a class="button secondary" href="solicitacoes-lista.html">Limpar</a>
+    </form>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Número</th><th>Solicitante</th><th>Ministério / Depto.</th><th>Item</th>
+            <th>Qtd.</th><th>Recebida em</th><th>Status</th><th>Ações</th>
+          </tr>
+        </thead>
+        <tbody>
+              <tr>
+                <td data-label="Número"><a class="sku-badge" href="solicitacao-detalhe.html">SC-2026-0042</a></td>
+                <td data-label="Solicitante">Mariana Alves</td>
+                <td data-label="Ministério / Depto.">Kids</td>
+                <td data-label="Item"><strong>Cadeira de escritório</strong></td>
+                <td data-label="Qtd.">2</td>
+                <td data-label="Recebida em">28/07/2026</td>
+                <td data-label="Status"><span class="badge pr-pendente">Pendente</span></td>
+                <td data-label="Ações"><a class="button secondary" href="solicitacao-detalhe.html">Ver detalhes</a></td>
+              </tr>
+              <tr>
+                <td data-label="Número"><a class="sku-badge" href="solicitacao-detalhe.html">SC-2026-0041</a></td>
+                <td data-label="Solicitante">Pedro Santos</td>
+                <td data-label="Ministério / Depto.">Louvor</td>
+                <td data-label="Item"><strong>Cabo XLR 5m</strong></td>
+                <td data-label="Qtd.">6</td>
+                <td data-label="Recebida em">27/07/2026</td>
+                <td data-label="Status"><span class="badge pr-aprovada">Aprovada</span></td>
+                <td data-label="Ações"><a class="button secondary" href="solicitacao-detalhe.html">Ver detalhes</a></td>
+              </tr>
+              <tr>
+                <td data-label="Número"><a class="sku-badge" href="solicitacao-detalhe.html">SC-2026-0040</a></td>
+                <td data-label="Solicitante">Juliana Reis</td>
+                <td data-label="Ministério / Depto.">Diaconia</td>
+                <td data-label="Item"><strong>Aspirador de pó</strong></td>
+                <td data-label="Qtd.">1</td>
+                <td data-label="Recebida em">26/07/2026</td>
+                <td data-label="Status"><span class="badge pr-rejeitada">Rejeitada</span></td>
+                <td data-label="Ações"><a class="button secondary" href="solicitacao-detalhe.html">Ver detalhes</a></td>
+              </tr>
+              <tr>
+                <td data-label="Número"><a class="sku-badge" href="solicitacao-detalhe.html">SC-2026-0039</a></td>
+                <td data-label="Solicitante">Carlos Lima</td>
+                <td data-label="Ministério / Depto.">Mídia</td>
+                <td data-label="Item"><strong>Cartão SD 128GB</strong></td>
+                <td data-label="Qtd.">4</td>
+                <td data-label="Recebida em">24/07/2026</td>
+                <td data-label="Status"><span class="badge pr-aprovada">Aprovada</span></td>
+                <td data-label="Ações"><a class="button secondary" href="solicitacao-detalhe.html">Ver detalhes</a></td>
+              </tr>
+              <tr>
+                <td data-label="Número"><a class="sku-badge" href="solicitacao-detalhe.html">SC-2026-0038</a></td>
+                <td data-label="Solicitante">Ana Prado</td>
+                <td data-label="Ministério / Depto.">Recepção</td>
+                <td data-label="Item"><strong>Café em grãos 1kg</strong></td>
+                <td data-label="Qtd.">10</td>
+                <td data-label="Recebida em">22/07/2026</td>
+                <td data-label="Status"><span class="badge pr-cancelada">Cancelada</span></td>
+                <td data-label="Ações"><a class="button secondary" href="solicitacao-detalhe.html">Ver detalhes</a></td>
+              </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="table-footer">
+      <span>Exibindo 1–5 de 5 solicitações</span>
+      <span>Itens por página: 20</span>
+    </div>
+  </main>
+</div>
+</body>
+</html>

@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Solicitação SC-2026-0042 — Alive Church</title>
+<link rel="stylesheet" href="demo.css" />
+</head>
+<body>
+<div class="demo-bar">
+  <strong>Demonstração estática</strong>
+  <a href="index.html">Índice</a>
+  <a href="solicitacao-publica.html">Formulário público</a>
+  <a href="solicitacoes-lista.html">Solicitações</a>
+  <a href="solicitacao-detalhe.html">Detalhe / aprovação</a>
+  <a href="ordens-lista.html">Ordens de Serviço</a>
+  <a href="ordem-nova.html">Nova ordem</a>
+  <a href="ordem-detalhe.html">Detalhe da ordem</a>
+  <a href="perfil-igreja.html">Perfil da Igreja</a>
+</div>
+<div class="app-shell">
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <span class="alive">ALIVE</span>
+      <span class="church">CHURCH</span>
+      <div class="sidebar-logo-sub">INVENTÁRIO</div>
+    </div>
+    <div class="sidebar-user">
+      <span class="sidebar-user-name">Rafael Buzuti</span>
+      <span class="sidebar-user-role">Admin</span>
+    </div>
+    <nav class="sidebar-nav">
+        <a class="nav-item" href="#"><span class="nav-dot"></span><span>Dashboard</span></a>
+        <a class="nav-item" href="#"><span class="nav-dot"></span><span>Inventário</span></a>
+        <a class="nav-item" href="#"><span class="nav-dot"></span><span>Estoque</span></a>
+        <a class="nav-item" href="#"><span class="nav-dot"></span><span>Leitura QR</span></a>
+        <a class="nav-item" href="#"><span class="nav-dot"></span><span>Etiquetas</span></a>
+        <a class="nav-item" href="#"><span class="nav-dot"></span><span>Inventário rápido</span></a>
+        <a class="nav-item nav-item-active" href="solicitacoes-lista.html"><span class="nav-dot"></span><span>Solicitações de Compra</span></a>
+        <a class="nav-item" href="ordens-lista.html"><span class="nav-dot"></span><span>Ordens de Serviço</span></a>
+        <a class="nav-item" href="#"><span class="nav-dot"></span><span>Relatórios</span></a>
+        <a class="nav-item" href="#"><span class="nav-dot"></span><span>Setores</span></a>
+        <a class="nav-item" href="#"><span class="nav-dot"></span><span>Usuários</span></a>
+        <a class="nav-item" href="perfil-igreja.html"><span class="nav-dot"></span><span>Perfil da Igreja</span></a>
+    </nav>
+  </aside>
+  <main class="main">
+    <div class="topbar">
+      <div>
+        <a class="back-link" href="solicitacoes-lista.html">← Voltar</a>
+        <h1 style="font-family:monospace;margin-top:6px">SC-2026-0042</h1>
+        <p class="muted">Cadeira de escritório</p>
+      </div>
+      <div class="actions"><span class="badge pr-pendente">Pendente</span></div>
+    </div>
+
+    <div class="actions" style="margin-bottom:16px">
+      <button class="button" type="button">Aprovar</button>
+      <button class="button danger" type="button">Rejeitar</button>
+      <button class="button secondary" type="button">Cancelar</button>
+    </div>
+
+    <section class="panel detail-list" style="padding:0">
+        <div class="detail-item"><strong>Número</strong><span>SC-2026-0042</span></div>
+        <div class="detail-item"><strong>Recebida em</strong><span>28/07/2026 19:12</span></div>
+        <div class="detail-item"><strong>Solicitante</strong><span>Mariana Alves</span></div>
+        <div class="detail-item"><strong>Contato</strong><span>(11) 98888-1234</span></div>
+        <div class="detail-item"><strong>Ministério / Departamento</strong><span>Kids</span></div>
+        <div class="detail-item"><strong>Item solicitado</strong><span>Cadeira de escritório</span></div>
+        <div class="detail-item"><strong>Quantidade</strong><span>2</span></div>
+        <div class="detail-item"><strong>Valor estimado</strong><span>R$ 780,00</span></div>
+        <div class="detail-item"><strong>Marca</strong><span>Flexform</span></div>
+        <div class="detail-item"><strong>Link de referência</strong><span>https://loja.exemplo.com/cadeira</span></div>
+        <div class="detail-item"><strong>Data desejada</strong><span>15/08/2026</span></div>
+        <div class="detail-item"><strong>Justificativa</strong><span>As cadeiras da sala de apoio do Kids estão quebradas e não suportam o uso semanal.</span></div>
+        <div class="detail-item"><strong>Observações</strong><span>Preferência por cor preta.</span></div>
+    </section>
+
+    <div class="modal-overlay">
+      <div class="modal">
+        <div class="modal-head">
+          <h2>Aprovar solicitação SC-2026-0042</h2>
+          <span class="muted">✕</span>
+        </div>
+        <form class="grid">
+          <div class="form-row">
+            <div class="field"><label>Quantidade aprovada *</label><input type="number" value="2" /></div>
+            <div class="field"><label>Valor aprovado (R$)</label><input type="number" value="720" /></div>
+          </div>
+          <div class="field"><label>Marca aprovada</label><input value="Flexform" /></div>
+          <div class="field"><label>Observações</label><textarea rows="3">Compra autorizada com o fornecedor habitual.</textarea></div>
+          <p class="field-hint">Seu nome e a data/hora da aprovação são registrados automaticamente.</p>
+          <div class="modal-actions">
+            <button class="button secondary" type="button">Cancelar</button>
+            <button class="button" type="button">Confirmar aprovação</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </main>
+</div>
+</body>
+</html>

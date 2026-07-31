@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Solicitação de Compra — Alive Church</title>
+<link rel="stylesheet" href="demo.css" />
+</head>
+<body>
+<div class="demo-bar">
+  <strong>Demonstração estática</strong>
+  <a href="index.html">Índice</a>
+  <a href="solicitacao-publica.html">Formulário público</a>
+  <a href="solicitacoes-lista.html">Solicitações</a>
+  <a href="solicitacao-detalhe.html">Detalhe / aprovação</a>
+  <a href="ordens-lista.html">Ordens de Serviço</a>
+  <a href="ordem-nova.html">Nova ordem</a>
+  <a href="ordem-detalhe.html">Detalhe da ordem</a>
+  <a href="perfil-igreja.html">Perfil da Igreja</a>
+</div>
+<main class="public-page">
+  <div class="public-card">
+    <div class="public-brand">
+      <span class="alive">ALIVE</span> <span class="church">CHURCH</span>
+      <span class="system">Solicitação de Compra</span>
+    </div>
+    <h1 class="public-product-name">Solicitação de Compra</h1>
+    <p class="muted">Preencha os dados abaixo. Após o envio você receberá o número da solicitação e a equipe responsável fará a análise.</p>
+
+    <form class="grid">
+      <div class="field"><label>Nome *</label><input placeholder="Seu nome completo" /></div>
+      <div class="field"><label>Contato *</label><input placeholder="Telefone ou e-mail" /></div>
+      <div class="field"><label>Ministério / Departamento</label><input placeholder="Ex.: Kids, Louvor, Diaconia" /></div>
+      <div class="field"><label>Item solicitado *</label><input placeholder="Ex.: Cadeira de escritório" /></div>
+      <div class="form-row">
+        <div class="field"><label>Quantidade *</label><input type="number" value="2" /></div>
+        <div class="field"><label>Valor estimado (R$)</label><input type="number" placeholder="Opcional" /></div>
+      </div>
+      <div class="field"><label>Marca</label><input placeholder="Opcional" /></div>
+      <div class="field"><label>Link de referência</label><input placeholder="https://..." /></div>
+      <div class="field"><label>Data desejada</label><input type="date" /></div>
+      <div class="field"><label>Justificativa *</label><textarea rows="4" placeholder="Por que este item é necessário?"></textarea></div>
+      <div class="field"><label>Observações</label><textarea rows="3" placeholder="Opcional"></textarea></div>
+      <button class="button gold public-cta" type="button">Enviar solicitação</button>
+      <p class="muted" style="text-align:center;font-size:12px">Campos com * são obrigatórios.</p>
+    </form>
+
+    <div class="alert success" style="display:grid;gap:6px;text-align:center">
+      <strong>Confirmação exibida após o envio</strong>
+      <span>Solicitação enviada com sucesso.</span>
+      <span>Número da solicitação: <strong style="font-family:monospace">SC-2026-0042</strong></span>
+      <span>Guarde este número. A equipe responsável fará a análise.</span>
+    </div>
+  </div>
+</main>
+</body>
+</html>

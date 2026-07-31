@@ -43,3 +43,23 @@ export function canManageStock(user: SessionUser) {
 export function canDeleteStockProduct(userManagesStock: boolean, product: { active: boolean }) {
   return userManagesStock && !product.active;
 }
+
+// ── Solicitação de Compra ─────────────────────────────────────────────────
+// O envio é público (sem login). A triagem — aprovar, rejeitar, cancelar e ver
+// a listagem — é de administradores e gestores (papel "responsavel").
+export function canManagePurchaseRequests(user: SessionUser) {
+  return user.role === "admin" || user.role === "responsavel";
+}
+
+// ── Ordem de Serviço ──────────────────────────────────────────────────────
+// Documento interno: apenas administradores e gestores criam, emitem e
+// acompanham. Voluntários (visualizador) não têm acesso ao módulo.
+export function canManageServiceOrders(user: SessionUser) {
+  return user.role === "admin" || user.role === "responsavel";
+}
+
+// ── Perfil da Igreja ──────────────────────────────────────────────────────
+// Dados institucionais impressos nos documentos: estruturais, só admin edita.
+export function canManageChurchProfile(user: SessionUser) {
+  return user.role === "admin";
+}
