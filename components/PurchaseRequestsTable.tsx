@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
+import { ExternalLink } from "lucide-react";
 import {
   MobileSort,
   SortableTh,
@@ -109,6 +110,11 @@ export function PurchaseRequestsTable({ requests }: { requests: PurchaseRequestR
         <Link className="button secondary" href="/purchase-requests">
           Limpar
         </Link>
+        {/* Abre o formulário público em nova aba: a triagem não se perde e a
+            URL fica à mão para copiar e compartilhar com quem vai solicitar. */}
+        <a className="button gold" href="/solicitacao-compra" target="_blank" rel="noopener noreferrer">
+          <ExternalLink size={15} /> Nova solicitação
+        </a>
       </form>
 
       <MobileSort columns={columns} sort={sort} onSort={sortBy} />
